@@ -32,9 +32,15 @@ function Dashboard(){
                     </div>
 
                     <div className="summaryCard">
-                        <h3>Completed</h3>
+                        <h3>Completed Tasks</h3>
                         <p className="summaryNumber">0</p>
                         <p>Tasks finished</p>
+                    </div>
+
+                    <div className="summaryCard">
+                        <h3>Upcoming Deadlines</h3>
+                        <p className="summaryNumber">0</p>
+                        <p></p>
                     </div>
 
                     <div className="summaryCard">
@@ -62,6 +68,13 @@ function Dashboard(){
                         <button type="button">+ Create Note</button>
                     </div>
 
+                </section>
+
+                <section className = "dashboardQuickAccess">
+                    <h2>Quick Access</h2>
+                    <Link to = "/pomodoro">1{/*icon*/}</Link>
+                    <Link to = "/chat">2{/*icon*/}</Link>
+                    <Link to = "/calendar">3{/*icon*/}</Link>
                 </section>
 
                 </main>
