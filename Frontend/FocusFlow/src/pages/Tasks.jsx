@@ -1,105 +1,173 @@
-import {useState} from "react";
+
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 
-function Tasks(){
-    const [task, setTask] = useState("");
-    const [tasks,setTasks] = useState([]);
+const STORAGE_KEY = "focusflow_tasks";
 
-    const addTask = (e) => {
-        e.preventDefault();
-
-        if(task.trim() === ""){
-            return;
+function Tasks() {
+    const [tasks, setTasks] = useState(() => {
+        try {
+            const savedTasks = localStorage.getItem(STORAGE_KEY);
+            return savedTasks ? JSON.parse(savedTasks) : [];
+        } catch (error) {
+            console.error("Could not load tasks:", error);
+            return [];
         }
+    });
+
+    const [taskTitle, setTaskTitle] = useState("");
+    const [taskDescription, setTaskDescription] = useState("");
+    const [taskDueDate, setTaskDueDate] = useState("");
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        } catch (error) {
+            console.error("Could not save tasks:", error);
+        }
+    }, [tasks]);
+
+    const addTask = (event) => {
+        event.preventDefault();
+
+        const title = taskTitle.trim();
+
+        if (!title) return;
 
         const newTask = {
-            id: Date.now(),
-            title : task.trim(),
-            completed: false
+            id: crypto.randomUUID(),
+            title,
+            description: taskDescription.trim(),
+            dueDate: taskDueDate,
+            completed: false,
+            createdAt: new Date().toISOString(),
         };
 
-        setTasks([...tasks,newTask]);
-        setTask("");
+        setTasks((currentTasks) => [...currentTasks, newTask]);
+
+        setTaskTitle("");
+        setTaskDescription("");
+        setTaskDueDate("");
     };
 
-    const toggleTask = (id) => {
+    const toggleTask = (taskId) => {
         setTasks((currentTasks) =>
-        currentTasks.map((task) =>
-            task.id === id
-                ? { ...task, completed: !task.completed }
-                : task
-        )
-    );
-};
-
-    const deleteTask = (id) => {
-        setTasks((currentTasks) =>{
-            return currentTasks.filter((task) => task.id !== id)
-        });
+            currentTasks.map((task) =>
+                task.id === taskId
+                    ? { ...task, completed: !task.completed }
+                    : task
+            )
+        );
     };
 
-    return(
-       <div className = "tasks">
-            <Navigation/>
+    const deleteTask = (taskId) => {
+        setTasks((currentTasks) =>
+            currentTasks.filter((task) => task.id !== taskId)
+        );
+    };
 
-            <main className = "taskContent">
-                <header>
-                    <h1>My Tasks</h1>
-                </header>
+    return (
+        <>
+            <Navigation />
 
-                {/*Add task form */}
+            <main>
+                <h1>Tasks</h1>
+                <p>Organise your work and keep track of your progress.</p>
+
                 <section>
                     <h2>Add a Task</h2>
 
-                    <form onSubmit = {addTask}>
-                        <input type = "text" 
-                        placeholder="Enter a task..." 
-                        value = {task}
-                        onChange = {(e) => setTask(e.target.value)}
-                        />
+                    <form onSubmit={addTask}>
+                        <div>
+                            <label htmlFor="taskTitle">Task title</label>
+                            <input
+                                id="taskTitle"
+                                type="text"
+                                value={taskTitle}
+                                onChange={(event) =>
+                                    setTaskTitle(event.target.value)
+                                }
+                                placeholder="Enter task title"
+                                required
+                            />
+                        </div>
 
-                        <button type = "submit">Add Task</button>
+                        <div>
+                            <label htmlFor="taskDescription">
+                                Description
+                            </label>
+                            <textarea
+                                id="taskDescription"
+                                value={taskDescription}
+                                onChange={(event) =>
+                                    setTaskDescription(event.target.value)
+                                }
+                                placeholder="Add details (optional)"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="taskDueDate">Due date</label>
+                            <input
+                                id="taskDueDate"
+                                type="date"
+                                value={taskDueDate}
+                                onChange={(event) =>
+                                    setTaskDueDate(event.target.value)
+                                }
+                            />
+                        </div>
+
+                        <button type="submit">Add Task</button>
                     </form>
                 </section>
 
-                {/*Task List */}
                 <section>
-                    <h2>All Tasks</h2>
+                    <h2>My Tasks ({tasks.length})</h2>
 
-                    {tasks.length === 0?(
-                        <p>You haven't added any tasks yet.</p>) : (
-                            <ul>
-                                {tasks.map((task) => (
-                                    <li key = {task.id}>
-                                        <input type = "checkbox"
-                                        checked = {task.completed}
-                                        onChange = {() => toggleTask(task.id)}
-                                        id= {`task-${task.id}`}
-                                        />
+                    {tasks.length === 0 ? (
+                        <p>No tasks yet. Add your first task above!</p>
+                    ) : (
+                        tasks.map((task) => (
+                            <article key={task.id}>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={task.completed}
+                                        onChange={() => toggleTask(task.id)}
+                                    />
+                                    <span
+                                        style={{
+                                            textDecoration: task.completed
+                                                ? "line-through"
+                                                : "none",
+                                        }}
+                                    >
+                                        {task.title}
+                                    </span>
+                                </label>
 
-                                        <label 
-                                            htmlFor = {`task-${task.id}`}
-                                            className = {
-                                                task.completed ? "taskCompleted":""
-                                            }
-                                        >
-                                            {task.title}
-                                        </label>
+                                {task.description && (
+                                    <p>{task.description}</p>
+                                )}
 
-                                        <button type = "button" onClick = {()=> deleteTask(task.id)}>
-                                            Delete
-                                        </button>
-                                    </li>
+                                {task.dueDate && (
+                                    <p>Due: {task.dueDate}</p>
+                                )}
 
-
-                                ))}
-                            </ul>
-                        )}
-                   
-                        
+                                <button
+                                    type="button"
+                                    onClick={() => deleteTask(task.id)}
+                                >
+                                    Delete
+                                </button>
+                            </article>
+                        ))
+                    )}
                 </section>
             </main>
-       </div>
+        </>
     );
 }
+
 export default Tasks;
