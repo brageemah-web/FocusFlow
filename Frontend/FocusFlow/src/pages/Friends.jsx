@@ -1,38 +1,101 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 
+const STORAGE_KEY = "focusflow_friends";
+
+function loadFriendsData() {
+    try {
+        const savedData = localStorage.getItem(STORAGE_KEY);
+
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+
+            return {
+                friends: Array.isArray(parsed.friends)
+                    ? parsed.friends
+                    : [],
+                sentRequests: Array.isArray(parsed.sentRequests)
+                    ? parsed.sentRequests
+                    : [],
+                receivedRequests: Array.isArray(parsed.receivedRequests)
+                    ? parsed.receivedRequests
+                    : [],
+            };
+        }
+    } catch (error) {
+        console.error("Could not load friends data:", error);
+    }
+
+    return {
+        friends: [],
+        sentRequests: [],
+        receivedRequests: [],
+    };
+}
+
 function Friends() {
-    const [friends, setFriends] = useState([]);
+    const [initialData] = useState(loadFriendsData);
+
+    const [friends, setFriends] = useState(initialData.friends);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    const [sentRequests, setSentRequests] = useState([]);
-    const [receivedRequests, setReceivedRequests] = useState([]);
+    const [sentRequests, setSentRequests] = useState(
+        initialData.sentRequests
+    );
+    const [receivedRequests, setReceivedRequests] = useState(
+        initialData.receivedRequests
+    );
+    const [message, setMessage] = useState("");
 
-    const searchUsers = async (event) => {
+    // Save friends and requests whenever they change
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify({
+                    friends,
+                    sentRequests,
+                    receivedRequests,
+                })
+            );
+        } catch (error) {
+            console.error("Could not save friends data:", error);
+        }
+    }, [friends, sentRequests, receivedRequests]);
+
+    // User search requires the backend.
+    const searchUsers = (event) => {
         event.preventDefault();
 
-        const query = searchTerm.trim();
-
-        if (!query) {
+        if (!searchTerm.trim()) {
             setSearchResults([]);
+            setMessage("Enter a name or username to search.");
             return;
         }
 
-        // Backend user-search API will be connected here.
         setSearchResults([]);
+        setMessage(
+            "User search will be available when the backend is connected."
+        );
     };
 
     const sendFriendRequest = (user) => {
-        setSentRequests((current) =>
-            current.some((request) => request.id === user.id)
-                ? current
-                : [...current, user]
+        const alreadyFriend = friends.some(
+            (friend) => friend.id === user.id
         );
 
+        const alreadySent = sentRequests.some(
+            (request) => request.id === user.id
+        );
+
+        if (alreadyFriend || alreadySent) return;
+
+        setSentRequests((current) => [...current, user]);
         setSearchResults((current) =>
             current.filter((result) => result.id !== user.id)
         );
+        setMessage(`Friend request sent to ${user.name}.`);
     };
 
     const acceptRequest = (request) => {
@@ -45,18 +108,43 @@ function Friends() {
         setReceivedRequests((current) =>
             current.filter((item) => item.id !== request.id)
         );
+
+        setMessage(`You are now friends with ${request.name}.`);
     };
 
     const declineRequest = (requestId) => {
         setReceivedRequests((current) =>
             current.filter((request) => request.id !== requestId)
         );
+
+        setMessage("Friend request declined.");
+    };
+
+    const cancelRequest = (requestId) => {
+        setSentRequests((current) =>
+            current.filter((request) => request.id !== requestId)
+        );
+
+        setMessage("Friend request cancelled.");
     };
 
     const removeFriend = (friendId) => {
         setFriends((current) =>
             current.filter((friend) => friend.id !== friendId)
         );
+
+        setMessage("Friend removed.");
+    };
+
+    // Temporary helper for testing the received-request workflow.
+    const addTestRequest = () => {
+        const testUser = {
+            id: crypto.randomUUID(),
+            name: `Test User ${receivedRequests.length + 1}`,
+        };
+
+        setReceivedRequests((current) => [...current, testUser]);
+        setMessage("A test friend request was added.");
     };
 
     return (
@@ -65,7 +153,15 @@ function Friends() {
 
             <main>
                 <h1>Friends</h1>
-                <p>Connect with friends and keep each other motivated.</p>
+                <p>
+                    Connect with friends and keep each other motivated.
+                </p>
+
+                {message && (
+                    <p role="status" aria-live="polite">
+                        {message}
+                    </p>
+                )}
 
                 <section>
                     <h2>Find Friends</h2>
@@ -79,21 +175,15 @@ function Friends() {
                             id="searchUsers"
                             type="search"
                             value={searchTerm}
-                            onChange={(event) =>
-                                setSearchTerm(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setSearchTerm(event.target.value);
+                                setMessage("");
+                            }}
                             placeholder="Search users..."
                         />
 
                         <button type="submit">Search</button>
                     </form>
-
-                    {searchResults.length === 0 && searchTerm.trim() && (
-                        <p>
-                            No search results yet. User search will work once
-                            the backend is connected.
-                        </p>
-                    )}
 
                     {searchResults.map((user) => (
                         <div key={user.id}>
@@ -119,9 +209,7 @@ function Friends() {
                                 <span>{friend.name}</span>
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        removeFriend(friend.id)
-                                    }
+                                    onClick={() => removeFriend(friend.id)}
                                 >
                                     Remove
                                 </button>
@@ -138,15 +226,26 @@ function Friends() {
                     ) : (
                         sentRequests.map((request) => (
                             <div key={request.id}>
-                                <span>{request.name}</span>
-                                <span> Pending</span>
+                                <span>{request.name} — Pending</span>
+                                <button
+                                    type="button"
+                                    onClick={() => cancelRequest(request.id)}
+                                >
+                                    Cancel
+                                </button>
                             </div>
                         ))
                     )}
                 </section>
 
                 <section>
-                    <h2>Received Requests ({receivedRequests.length})</h2>
+                    <h2>
+                        Received Requests ({receivedRequests.length})
+                    </h2>
+
+                    <button type="button" onClick={addTestRequest}>
+                        Add Test Request
+                    </button>
 
                     {receivedRequests.length === 0 ? (
                         <p>You have no incoming friend requests.</p>
@@ -154,17 +253,17 @@ function Friends() {
                         receivedRequests.map((request) => (
                             <div key={request.id}>
                                 <span>{request.name}</span>
+
                                 <button
                                     type="button"
                                     onClick={() => acceptRequest(request)}
                                 >
                                     Accept
                                 </button>
+
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        declineRequest(request.id)
-                                    }
+                                    onClick={() => declineRequest(request.id)}
                                 >
                                     Decline
                                 </button>
