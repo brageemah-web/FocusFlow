@@ -5,6 +5,7 @@ import Navigation from "../components/Navigation";
 const TASKS_KEY = "focusflow_tasks";
 const NOTES_KEY = "focusflow_notes";
 const POMODORO_KEY = "focusflow_pomodoro";
+const CALENDAR_KEY = "focusflow_calendar_events";
 
 function readStorage(key) {
     try {
@@ -17,38 +18,50 @@ function readStorage(key) {
 }
 
 function Dashboard() {
+    // Load saved tasks
     const [tasks] = useState(() => {
-    const savedTasks = readStorage(TASKS_KEY);
-    return Array.isArray(savedTasks) ? savedTasks : [];
+        const savedTasks = readStorage(TASKS_KEY);
+        return Array.isArray(savedTasks) ? savedTasks : [];
     });
 
+    // Load saved notes
     const [notes] = useState(() => {
         const savedNotes = readStorage(NOTES_KEY);
         return Array.isArray(savedNotes) ? savedNotes : [];
     });
 
+    // Load Pomodoro settings and completed sessions
     const [pomodoro] = useState(() => readStorage(POMODORO_KEY));
+
+    // Load saved calendar events
+    const [events] = useState(() => {
+    const savedEvents = readStorage(CALENDAR_KEY);
+    return Array.isArray(savedEvents) ? savedEvents : [];
+});
 
     // Check whether a task is completed
     const isCompleted = (task) =>
         task.completed === true || task.isCompleted === true;
 
+    // Get today's date at midnight
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Tasks that still need to be completed
     const incompleteTasks = tasks.filter(
         (task) => !isCompleted(task)
     );
 
+    // Get a task's due date
+    const getTaskDate = (task) => task.dueDate || task.deadline;
+
     // Tasks due today
     const todaysTasks = incompleteTasks.filter((task) => {
-        if (!task.dueDate) return false;
+        const taskDate = getTaskDate(task);
 
-        const dueDate = new Date(task.dueDate);
+        if (!taskDate) return false;
+
+        const dueDate = new Date(taskDate);
 
         if (Number.isNaN(dueDate.getTime())) return false;
 
@@ -57,18 +70,61 @@ function Dashboard() {
         return dueDate.getTime() === today.getTime();
     });
 
-    // Incomplete tasks due today or later
-    const upcomingDeadlines = incompleteTasks.filter((task) => {
-        if (!task.dueDate) return false;
+    // Get the date of a task or calendar event
+const getDeadlineDate = (item) =>
+    item.dueDate ||
+    item.deadline ||
+    item.date ||
+    item.startDate;
 
-        const dueDate = new Date(task.dueDate);
+// Combine incomplete tasks and calendar events
+const upcomingDeadlines = [
+    ...incompleteTasks,
+    ...events,
+]
+    .filter((item) => {
+        const deadlineDate = getDeadlineDate(item);
 
-        if (Number.isNaN(dueDate.getTime())) return false;
+        if (!deadlineDate) return false;
 
-        dueDate.setHours(0, 0, 0, 0);
+        const date = new Date(deadlineDate);
 
-        return dueDate >= today;
-    });
+        if (Number.isNaN(date.getTime())) return false;
+
+        date.setHours(0, 0, 0, 0);
+
+        return date >= today;
+    })
+    .sort(
+        (a, b) =>
+            new Date(getDeadlineDate(a)) -
+            new Date(getDeadlineDate(b))
+    );
+
+    // Get a calendar event's date
+    const getEventDate = (event) =>
+        event.date || event.startDate;
+
+    // Upcoming calendar events
+    const upcomingEvents = events
+        .filter((event) => {
+            const eventDate = getEventDate(event);
+
+            if (!eventDate) return false;
+
+            const date = new Date(eventDate);
+
+            if (Number.isNaN(date.getTime())) return false;
+
+            date.setHours(0, 0, 0, 0);
+
+            return date >= today;
+        })
+        .sort(
+            (a, b) =>
+                new Date(getEventDate(a)) -
+                new Date(getEventDate(b))
+        );
 
     // Show the three most recently added notes
     const recentNotes = [...notes]
@@ -161,14 +217,14 @@ function Dashboard() {
                         <Link to="/tasks">View All</Link>
 
                         {todaysTasks.length === 0 ? (
-                            <p>
-                                No incomplete tasks are due today.
-                            </p>
+                            <p>No incomplete tasks are due today.</p>
                         ) : (
                             <ul>
                                 {todaysTasks.slice(0, 5).map((task) => (
                                     <li key={task.id}>
-                                        {task.title || task.name || "Untitled task"}
+                                        {task.title ||
+                                            task.name ||
+                                            "Untitled task"}
                                     </li>
                                 ))}
                             </ul>
@@ -201,6 +257,7 @@ function Dashboard() {
                                         <strong>
                                             {note.title || "Untitled note"}
                                         </strong>
+
                                         {note.content && (
                                             <p>
                                                 {note.content.length > 80
@@ -224,17 +281,9 @@ function Dashboard() {
                     <h2>Quick Access</h2>
 
                     <div>
-                        <Link to="/pomodoro">
-                            Pomodoro Timer
-                        </Link>
-
-                        <Link to="/chat">
-                            Chat with Friends
-                        </Link>
-
-                        <Link to="/calendar">
-                            Calendar
-                        </Link>
+                        <Link to="/pomodoro">Pomodoro Timer</Link>
+                        <Link to="/chat">Chat with Friends</Link>
+                        <Link to="/calendar">Calendar</Link>
                     </div>
                 </section>
             </main>
