@@ -23,12 +23,14 @@ function Tasks(){
     };
 
     const toggleTask = (id) => {
-        setTasks(
-            tasks.map((task) => {
-                task.id === id ? {...task, completed: !task.completed} : task
-            })
-        );
-    };
+        setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+            task.id === id
+                ? { ...task, completed: !task.completed }
+                : task
+        )
+    );
+};
 
     const deleteTask = (id) => {
         setTasks((currentTasks) =>{
