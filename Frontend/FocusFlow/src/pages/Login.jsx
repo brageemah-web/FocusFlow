@@ -39,13 +39,28 @@ function Login(){
 
                 <form>
                     <label htmlFor = "email" >Email</label><br/>
-                    <input type = "email" id = "email" placeholder = "johnDoe@gmail.com" value = {email} onChange = {(event) => setEmail(event.target.value)} required/><br/>
+                    <input type = "email" 
+                    id = "email" 
+                    placeholder = "johnDoe@gmail.com" 
+                    value = {email} 
+                    onChange = {(event) => setEmail(event.target.value)} 
+                    required
+                    /><br/>
 
                     <label htmlFor = "password" >Password</label><br/>
-                    <input type = "password" id = "password" placeholder = "Enter your password" value = {password} onChange = {(event) => setPassword(event.target.value)} required/><br/>
+                    <input type = "password" 
+                    id = "password" 
+                    placeholder = "Enter your password" 
+                    value = {password} 
+                    onChange = {(event) => setPassword(event.target.value)} 
+                    required
+                    /><br/>
 
                     <label className = "showPassword">
-                        <input type = "checkbox" checked = {showPassword} onChange = {(event) => setShowPassword(event.target.checked)}/>
+                        <input type = "checkbox" 
+                        checked = {showPassword} 
+                        onChange = {(event) => setShowPassword(event.target.checked)}
+                        />
                         Show password
                     </label>
 
