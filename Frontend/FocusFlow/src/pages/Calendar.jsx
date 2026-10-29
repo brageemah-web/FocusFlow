@@ -1,72 +1,95 @@
-import {useState} from "react";
+
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 
-function Calendar(){
-    const today = new Date();
-    const [currentMonth, setCurrentMonth] = useState(
-        new Date(today.getFullYear(), today.getMonth(),1)
-    );
+const STORAGE_KEY = "focusflow_calendar_events";
 
-    const [selectedDate, setSelectedDate] = useState(
-        today.toISOString().split("T")[0]
-    );
-
-    const [eventTitle, setEventTitle] = useState("");
-    const [events, setEvents] = useState([]);
-
-    const monthName = currentMonth.toLocaleString("en-Za", {
-        month : "long",
-        year : "numeric",
+function Calendar() {
+    const [events, setEvents] = useState(() => {
+        try {
+            const savedEvents = localStorage.getItem(STORAGE_KEY);
+            return savedEvents ? JSON.parse(savedEvents) : [];
+        } catch (error) {
+            console.error("Could not load calendar events:", error);
+            return [];
+        }
     });
 
-    const firstDay = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth(),
-        1
-    ).getDay();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(
+        new Date().toISOString().split("T")[0]
+    );
+    const [eventTitle, setEventTitle] = useState("");
 
-    const daysInMonth = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth() + 1,
-        0
-    ).getDate();
+    // Save events whenever they change
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(events)
+            );
+        } catch (error) {
+            console.error("Could not save calendar events:", error);
+        }
+    }, [events]);
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const monthName = currentDate.toLocaleString("default", {
+        month: "long",
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const changeMonth = (amount) => {
-        setCurrentMonth(
-            new Date(
-                currentMonth.getFullYear(),
-                currentMonth.getMonth() + amount,
-                1
-            )
-        );
+        setCurrentDate(new Date(year, month + amount, 1));
     };
 
-    const addEvent = (e) => {
-        e.preventDefault();
+    const addEvent = (event) => {
+        event.preventDefault();
 
-        if (eventTitle.trim() === "" || !selectedDate) {
-            return;
-        }
+        const title = eventTitle.trim();
+
+        if (!title || !selectedDate) return;
 
         const newEvent = {
-            id: Date.now(),
-            title: eventTitle.trim(),
+            id: crypto.randomUUID(),
+            title,
             date: selectedDate,
+            createdAt: new Date().toISOString(),
         };
 
-        setEvents((currentEvents) => [...currentEvents, newEvent]);
+        setEvents((currentEvents) => [
+            ...currentEvents,
+            newEvent,
+        ]);
+
         setEventTitle("");
     };
 
-    const deleteEvent = (id) => {
+    const deleteEvent = (eventId) => {
         setEvents((currentEvents) =>
-            currentEvents.filter((event) => event.id !== id)
+            currentEvents.filter((event) => event.id !== eventId)
         );
     };
 
-    const selectedEvents = events.filter(
-        (event) => event.date === selectedDate
-    );
+    const getEventsForDate = (date) => {
+        return events.filter((event) => event.date === date);
+    };
+
+    const selectDay = (day) => {
+        const date = [
+            year,
+            String(month + 1).padStart(2, "0"),
+            String(day).padStart(2, "0"),
+        ].join("-");
+
+        setSelectedDate(date);
+    };
+
+    const selectedEvents = getEventsForDate(selectedDate);
 
     return (
         <>
@@ -74,37 +97,43 @@ function Calendar(){
 
             <main>
                 <h1>Calendar</h1>
-                <p>Keep track of your events and important dates.</p>
+                <p>Plan your deadlines and keep track of important dates.</p>
 
                 <section>
-                    <button
-                        type="button"
-                        onClick={() => changeMonth(-1)}
-                    >
-                        Previous
-                    </button>
+                    <div>
+                        <button
+                            type="button"
+                            onClick={() => changeMonth(-1)}
+                            aria-label="Previous month"
+                        >
+                            Previous
+                        </button>
 
-                    <h2>{monthName}</h2>
+                        <h2>
+                            {monthName} {year}
+                        </h2>
 
-                    <button
-                        type="button"
-                        onClick={() => changeMonth(1)}
-                    >
-                        Next
-                    </button>
-                </section>
+                        <button
+                            type="button"
+                            onClick={() => changeMonth(1)}
+                            aria-label="Next month"
+                        >
+                            Next
+                        </button>
+                    </div>
 
-                <section>
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(7, 1fr)",
+                            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
                             gap: "8px",
                         }}
                     >
                         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
                             (day) => (
-                                <strong key={day}>{day}</strong>
+                                <div key={day}>
+                                    <strong>{day}</strong>
+                                </div>
                             )
                         )}
 
@@ -119,33 +148,36 @@ function Calendar(){
                             { length: daysInMonth },
                             (_, index) => {
                                 const day = index + 1;
-
-                                const dateString = [
-                                    currentMonth.getFullYear(),
-                                    String(currentMonth.getMonth() + 1).padStart(2, "0"),
+                                const date = [
+                                    year,
+                                    String(month + 1).padStart(2, "0"),
                                     String(day).padStart(2, "0"),
                                 ].join("-");
 
-                                const hasEvents = events.some(
-                                    (event) => event.date === dateString
-                                );
+                                const hasEvents =
+                                    getEventsForDate(date).length > 0;
 
                                 return (
                                     <button
-                                        key={dateString}
+                                        key={date}
                                         type="button"
-                                        onClick={() => setSelectedDate(dateString)}
+                                        onClick={() => selectDay(day)}
+                                        aria-pressed={selectedDate === date}
                                         style={{
-                                            minHeight: "50px",
+                                            minHeight: "55px",
                                             border:
-                                                selectedDate === dateString
-                                                    ? "2px solid #6b8e5a"
+                                                selectedDate === date
+                                                    ? "2px solid currentColor"
                                                     : "1px solid #ccc",
                                             borderRadius: "6px",
                                         }}
                                     >
                                         {day}
-                                        {hasEvents && <span> •</span>}
+                                        {hasEvents && (
+                                            <span aria-label="Has events">
+                                                {" "}•
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             }
@@ -154,55 +186,42 @@ function Calendar(){
                 </section>
 
                 <section>
-                    <h2>Add an event</h2>
+                    <h2>Events for {selectedDate}</h2>
 
                     <form onSubmit={addEvent}>
-                        <label htmlFor="eventTitle">Event title</label><br/>
+                        <label htmlFor="eventTitle">
+                            Event title
+                        </label>
 
                         <input
                             id="eventTitle"
                             type="text"
                             value={eventTitle}
-                            onChange={(e) => setEventTitle(e.target.value)}
-                            placeholder="e.g. Study for exam"
+                            onChange={(event) =>
+                                setEventTitle(event.target.value)
+                            }
+                            placeholder="e.g. Submit assignment"
                             required
-                        /><br/>
-
-                        <label htmlFor="eventDate">Event date</label><br/>
-
-                        <input
-                            id="eventDate"
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            required
-                        /><br/>
+                        />
 
                         <button type="submit">Add Event</button>
                     </form>
-                </section>
-
-                <section>
-                    <h2>
-                        Events for {selectedDate}
-                    </h2>
 
                     {selectedEvents.length === 0 ? (
-                        <p>No events for this date.</p>
+                        <p>No events scheduled for this date.</p>
                     ) : (
-                        <ul>
-                            {selectedEvents.map((event) => (
-                                <li key={event.id}>
-                                    {event.title}{" "}
-                                    <button
-                                        type="button"
-                                        onClick={() => deleteEvent(event.id)}
-                                    >
-                                        Delete
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        selectedEvents.map((event) => (
+                            <article key={event.id}>
+                                <p>{event.title}</p>
+
+                                <button
+                                    type="button"
+                                    onClick={() => deleteEvent(event.id)}
+                                >
+                                    Delete
+                                </button>
+                            </article>
+                        ))
                     )}
                 </section>
             </main>
