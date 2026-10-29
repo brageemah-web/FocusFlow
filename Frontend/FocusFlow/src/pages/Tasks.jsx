@@ -19,6 +19,9 @@ function Tasks() {
     const [taskDescription, setTaskDescription] = useState("");
     const [taskDueDate, setTaskDueDate] = useState("");
 
+    // Track the task currently being edited.
+    const [editingTaskId, setEditingTaskId] = useState(null);
+
     useEffect(() => {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -27,6 +30,7 @@ function Tasks() {
         }
     }, [tasks]);
 
+    // Add a new task.
     const addTask = (event) => {
         event.preventDefault();
 
@@ -45,11 +49,51 @@ function Tasks() {
 
         setTasks((currentTasks) => [...currentTasks, newTask]);
 
+        clearForm();
+    };
+
+    // Fill the form with the selected task's details.
+    const startEditing = (task) => {
+        setEditingTaskId(task.id);
+        setTaskTitle(task.title || "");
+        setTaskDescription(task.description || "");
+        setTaskDueDate(task.dueDate || "");
+    };
+
+    // Save changes to the existing task.
+    const saveTaskChanges = (event) => {
+        event.preventDefault();
+
+        const title = taskTitle.trim();
+
+        if (!title || editingTaskId === null) return;
+
+        setTasks((currentTasks) =>
+            currentTasks.map((task) =>
+                task.id === editingTaskId
+                    ? {
+                          ...task,
+                          title,
+                          description: taskDescription.trim(),
+                          dueDate: taskDueDate,
+                          updatedAt: new Date().toISOString(),
+                      }
+                    : task
+            )
+        );
+
+        clearForm();
+    };
+
+    // Clear the form and exit editing mode.
+    const clearForm = () => {
         setTaskTitle("");
         setTaskDescription("");
         setTaskDueDate("");
+        setEditingTaskId(null);
     };
 
+    // Mark a task as completed or incomplete.
     const toggleTask = (taskId) => {
         setTasks((currentTasks) =>
             currentTasks.map((task) =>
@@ -60,10 +104,15 @@ function Tasks() {
         );
     };
 
+    // Delete a task.
     const deleteTask = (taskId) => {
         setTasks((currentTasks) =>
             currentTasks.filter((task) => task.id !== taskId)
         );
+
+        if (editingTaskId === taskId) {
+            clearForm();
+        }
     };
 
     return (
@@ -75,9 +124,19 @@ function Tasks() {
                 <p>Organise your work and keep track of your progress.</p>
 
                 <section>
-                    <h2>Add a Task</h2>
+                    <h2>
+                        {editingTaskId !== null
+                            ? "Edit Task"
+                            : "Add a Task"}
+                    </h2>
 
-                    <form onSubmit={addTask}>
+                    <form
+                        onSubmit={
+                            editingTaskId !== null
+                                ? saveTaskChanges
+                                : addTask
+                        }
+                    >
                         <div>
                             <label htmlFor="taskTitle">Task title</label>
                             <input
@@ -118,7 +177,20 @@ function Tasks() {
                             />
                         </div>
 
-                        <button type="submit">Add Task</button>
+                        <button type="submit">
+                            {editingTaskId !== null
+                                ? "Save Changes"
+                                : "Add Task"}
+                        </button>
+
+                        {editingTaskId !== null && (
+                            <button
+                                type="button"
+                                onClick={clearForm}
+                            >
+                                Cancel
+                            </button>
+                        )}
                     </form>
                 </section>
 
@@ -133,14 +205,20 @@ function Tasks() {
                                 <label>
                                     <input
                                         type="checkbox"
-                                        checked={task.completed}
+                                        checked={
+                                            task.completed === true ||
+                                            task.isCompleted === true
+                                        }
                                         onChange={() => toggleTask(task.id)}
                                     />
+
                                     <span
                                         style={{
-                                            textDecoration: task.completed
-                                                ? "line-through"
-                                                : "none",
+                                            textDecoration:
+                                                task.completed ||
+                                                task.isCompleted
+                                                    ? "line-through"
+                                                    : "none",
                                         }}
                                     >
                                         {task.title}
@@ -154,6 +232,13 @@ function Tasks() {
                                 {task.dueDate && (
                                     <p>Due: {task.dueDate}</p>
                                 )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => startEditing(task)}
+                                >
+                                    Edit
+                                </button>
 
                                 <button
                                     type="button"
