@@ -1,44 +1,81 @@
 
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 
+const STORAGE_KEY = "focusflow_notes";
+
 function Notes() {
-    const [notes, setNotes] = useState([]);
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
-    const [search, setSearch] = useState("");
-
-    const addNote = (e) => {
-        e.preventDefault();
-
-        if (title.trim() === "" || content.trim() === "") {
-            return;
+    const [notes, setNotes] = useState(() => {
+        try {
+            const savedNotes = localStorage.getItem(STORAGE_KEY);
+            return savedNotes ? JSON.parse(savedNotes) : [];
+        } catch (error) {
+            console.error("Could not load notes:", error);
+            return [];
         }
+    });
+
+    const [noteTitle, setNoteTitle] = useState("");
+    const [noteContent, setNoteContent] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Save notes whenever they change
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(notes)
+            );
+        } catch (error) {
+            console.error("Could not save notes:", error);
+        }
+    }, [notes]);
+
+    // Create a new note
+    const addNote = (event) => {
+        event.preventDefault();
+
+        const title = noteTitle.trim();
+        const content = noteContent.trim();
+
+        if (!title || !content) return;
 
         const newNote = {
-            id: Date.now(),
-            title: title.trim(),
-            content: content.trim(),
-            createdAt: new Date().toLocaleDateString("en-ZA"),
+            id: crypto.randomUUID(),
+            title,
+            content,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         };
 
-        setNotes((currentNotes) => [...currentNotes, newNote]);
+        setNotes((currentNotes) => [
+            newNote,
+            ...currentNotes,
+        ]);
 
-        setTitle("");
-        setContent("");
+        setNoteTitle("");
+        setNoteContent("");
     };
 
-    const deleteNote = (id) => {
+    // Delete a note
+    const deleteNote = (noteId) => {
         setNotes((currentNotes) =>
-            currentNotes.filter((note) => note.id !== id)
+            currentNotes.filter(
+                (note) => note.id !== noteId
+            )
         );
     };
 
-    const filteredNotes = notes.filter((note) =>
-        `${note.title} ${note.content}`
-            .toLowerCase()
-            .includes(search.toLowerCase())
-    );
+    // Search note titles and content
+    const filteredNotes = notes.filter((note) => {
+        const search = searchTerm.toLowerCase();
+
+        return (
+            note.title.toLowerCase().includes(search) ||
+            note.content.toLowerCase().includes(search)
+        );
+    });
 
     return (
         <>
@@ -46,67 +83,103 @@ function Notes() {
 
             <main>
                 <h1>Notes</h1>
-                <p>Create and organise your study notes.</p>
+                <p>
+                    Keep your ideas, reminders, and study notes
+                    organised in one place.
+                </p>
 
                 <section>
-                    <h2>Create a note</h2>
+                    <h2>Create a Note</h2>
 
                     <form onSubmit={addNote}>
-                        <label htmlFor="noteTitle">Title</label>
-                        <input
-                            id="noteTitle"
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter note title"
-                            required
-                        />
+                        <div>
+                            <label htmlFor="noteTitle">
+                                Note title
+                            </label>
 
-                        <label htmlFor="noteContent">Content</label>
-                        <textarea
-                            id="noteContent"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            placeholder="Write your notes here..."
-                            rows={5}
-                            required
-                        />
+                            <input
+                                id="noteTitle"
+                                type="text"
+                                value={noteTitle}
+                                onChange={(event) =>
+                                    setNoteTitle(event.target.value)
+                                }
+                                placeholder="Enter note title"
+                                required
+                            />
+                        </div>
 
-                        <button type="submit">Save Note</button>
+                        <div>
+                            <label htmlFor="noteContent">
+                                Note content
+                            </label>
+
+                            <textarea
+                                id="noteContent"
+                                value={noteContent}
+                                onChange={(event) =>
+                                    setNoteContent(event.target.value)
+                                }
+                                placeholder="Write your notes here..."
+                                rows={6}
+                                required
+                            />
+                        </div>
+
+                        <button type="submit">
+                            Save Note
+                        </button>
                     </form>
                 </section>
 
                 <section>
-                    <h2>Your notes</h2>
+                    <h2>My Notes ({notes.length})</h2>
 
-                    <label htmlFor="noteSearch">Search notes</label>
+                    <label htmlFor="searchNotes">
+                        Search notes
+                    </label>
+
                     <input
-                        id="noteSearch"
+                        id="searchNotes"
                         type="search"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        value={searchTerm}
+                        onChange={(event) =>
+                            setSearchTerm(event.target.value)
+                        }
                         placeholder="Search by title or content..."
                     />
 
                     {filteredNotes.length === 0 ? (
-                        <p>No notes found.</p>
+                        <p>
+                            {notes.length === 0
+                                ? "No notes yet. Create your first note above!"
+                                : "No notes match your search."}
+                        </p>
                     ) : (
-                        <ul>
-                            {filteredNotes.map((note) => (
-                                <li key={note.id}>
-                                    <h3>{note.title}</h3>
-                                    <p>{note.content}</p>
-                                    <small>Created: {note.createdAt}</small>
-                                    <br />
+                        filteredNotes.map((note) => (
+                            <article key={note.id}>
+                                <h3>{note.title}</h3>
+                                <p>{note.content}</p>
+
+                                <small>
+                                    Created:{" "}
+                                    {new Date(
+                                        note.createdAt
+                                    ).toLocaleString()}
+                                </small>
+
+                                <div>
                                     <button
                                         type="button"
-                                        onClick={() => deleteNote(note.id)}
+                                        onClick={() =>
+                                            deleteNote(note.id)
+                                        }
                                     >
                                         Delete
                                     </button>
-                                </li>
-                            ))}
-                        </ul>
+                                </div>
+                            </article>
+                        ))
                     )}
                 </section>
             </main>
