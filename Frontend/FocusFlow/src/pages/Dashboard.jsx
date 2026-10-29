@@ -101,30 +101,6 @@ const upcomingDeadlines = [
             new Date(getDeadlineDate(b))
     );
 
-    // Get a calendar event's date
-    const getEventDate = (event) =>
-        event.date || event.startDate;
-
-    // Upcoming calendar events
-    const upcomingEvents = events
-        .filter((event) => {
-            const eventDate = getEventDate(event);
-
-            if (!eventDate) return false;
-
-            const date = new Date(eventDate);
-
-            if (Number.isNaN(date.getTime())) return false;
-
-            date.setHours(0, 0, 0, 0);
-
-            return date >= today;
-        })
-        .sort(
-            (a, b) =>
-                new Date(getEventDate(a)) -
-                new Date(getEventDate(b))
-        );
 
     // Show the three most recently added notes
     const recentNotes = [...notes]
