@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 
 const taskRoutes = require("./routes/tasks");
 const noteRoutes = require("./routes/notes");
+const calendarRoutes = require("./routes/calendar");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/tasks", taskRoutes);
 app.use("/api/notes", noteRoutes);
+app.use("/api/calendar", calendarRoutes);
 
 // Test route
 app.get("/", (req, res) => {
