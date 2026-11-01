@@ -130,4 +130,43 @@ router.put("/:conversationId/read", protect, async (req, res) => {
     }
 });
 
+
+// Delete (delete a message)
+router.delete("/:conversationId/:messageId", protect, async (req, res) => {
+    try {
+        const conversation = await Conversation.findOne({
+            _id: req.params.conversationId,
+            participants: req.user.id
+        });
+
+        if (!conversation) {
+            return res.status(404).json({
+                message: "Conversation not found"
+            });
+        }
+
+        const message = await Message.findOneAndDelete({
+            _id: req.params.messageId,
+            conversation: conversation._id,
+            sender: req.user.id
+        });
+
+        if (!message) {
+            return res.status(404).json({
+                message: "Message not found or you cannot delete this message"
+            });
+        }
+
+        res.status(200).json({
+            message: "Message deleted successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to delete message",
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
