@@ -1,4 +1,5 @@
-
+const http = require("http");
+const { Server } = require("socket.io");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -37,13 +38,27 @@ app.get("/", (req, res) => {
     });
 });
 
-const startServer = async() =>{
-    await connectDB();
+const server = http.createServer(app);
 
-    // Start server
-    app.listen(PORT, () => {
-        console.log(`FocusFlow server running on port ${PORT}`);
-    });
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
+
+const startServer = async () => {
+    try {
+        await connectDB();
+
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+
+    } catch (e) {
+        console.error("Failed to start server:", e.message);
+        process.exit(1);
+    }
 };
 
 startServer();
