@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const CalendarEvent = require("../models/CalendarEvent");
+const protect = require("../middleware/authMiddleware");
 
 // Get (retrieve all calendar event)
-router.get("/", async(req,res) =>{
+router.get("/", protect, async(req,res) =>{
     try{
-        const events = await CalendarEvent.find().sort({date : 1});
+        const events = await CalendarEvent.find({user: req.user.id}).sort({date : 1});
 
         //200 OK
         res.status(200).json(events);
@@ -21,13 +22,13 @@ router.get("/", async(req,res) =>{
 });
 
 // Post (create a new calendar event)
-router.post("/", async(req,res) => {
+router.post("/", protect, async(req,res) => {
     try{
         const {title, description, date, type} = req.body;
 
         if(!title || !date){
             //400 Bad Request
-            res.status(400).json({
+            return res.status(400).json({
                 message : "Title and date are required"
             });
         }
@@ -36,7 +37,8 @@ router.post("/", async(req,res) => {
             title,
             description,
             date,
-            type
+            type,
+            user: req.user.id
         });
 
         const savedEvent = await newEvent.save();
@@ -54,14 +56,14 @@ router.post("/", async(req,res) => {
 });
 
 //Put (update a calendar event)
-router.put("/:id", async (req, res) => {
+router.put("/:id", protect, async (req, res) => {
     try {
         const { title, description, date, type, completed } = req.body;
 
-        const updatedEvent = await CalendarEvent.findByIdAndUpdate(
-            req.params.id,
-            { title, description, date, type, completed },
-            { new: true, runValidators: true }
+        const updatedEvent = await CalendarEvent.findOneAndUpdate(
+            {_id: req.params.id, user: req.user.id},
+            {title, description, date, type, completed},
+            {new: true, runValidators: true}
         );
 
         if (!updatedEvent) {
@@ -80,9 +82,9 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete (delete a calendar event)
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protect, async (req, res) => {
     try {
-        const deletedEvent = await CalendarEvent.findByIdAndDelete(req.params.id);
+        const deletedEvent = await CalendarEvent.findOneAndDelete({_id: req.params.id, user: req.user.id});
 
         if (!deletedEvent) {
             return res.status(404).json({
