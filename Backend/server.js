@@ -1,5 +1,6 @@
 const http = require("http");
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -45,6 +46,36 @@ const io = new Server(server, {
         origin: "http://localhost:5173",
         methods: ["GET", "POST"]
     }
+});
+
+// Socket.IO JWT authentication
+io.use((socket, next) => {
+    try {
+        const token = socket.handshake.auth.token;
+
+        if (!token) {
+            return next(new Error("Authentication required"));
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        socket.user = {
+            id: decoded.id
+        };
+
+        next();
+
+    } catch (error) {
+        next(new Error("Invalid or expired token"));
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log(`User connected: ${socket.user.id}`);
+
+    socket.on("disconnect", () => {
+        console.log(`User disconnected: ${socket.user.id}`);
+    });
 });
 
 const startServer = async () => {
