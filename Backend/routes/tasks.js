@@ -7,7 +7,7 @@ const Task = require("../models/Task");
 //GET (get all tasks)
 router.get("/", protect, async (req,res)=> {
     try{
-        const tasks = await Task.find().sort({createdAt: -1});
+        const tasks = await Task.find({user: req.user.id}).sort({createdAt: -1});
 
         //200 OK
         res.status(200).json(tasks);
@@ -24,7 +24,7 @@ router.get("/", protect, async (req,res)=> {
 //POST (creates a task)
 router.post("/",protect, async(req,res) => {
     try{
-        const {title, description, dueDate} = req.body;
+        const {title, description, dueDate,completed} = req.body;
         if(!title || !title.trim()){
             //400 Bad Request
             return res.status(400).json({
@@ -35,7 +35,9 @@ router.post("/",protect, async(req,res) => {
         const newTask = new Task({
             title,
             description,
-            dueDate: dueDate || null
+            dueDate: dueDate || null,
+            completed,
+            user: req.user.id
         });
 
         const savedTask = await newTask.save();
@@ -63,8 +65,11 @@ router.put("/:id", protect, async (req, res) => {
 
         const { title, description, dueDate, completed } = req.body;
 
-        const updatedTask = await Task.findByIdAndUpdate(
-            req.params.id,
+        const updatedTask = await Task.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                user: req.user.id
+            },
             {
                 title,
                 description,
@@ -97,11 +102,11 @@ router.put("/:id", protect, async (req, res) => {
 //Delete (delete a task)
 router.delete("/:id", protect, async(req,res) => {
     try{
-        const deletedTask = await Task.findByIdAndDelete(req.params.id);
+        const deletedTask = await Task.findOneAndDelete({_id: req.params.id, user: req.user.id});
 
         if(!deletedTask){
             //404 Not Found
-            return req.status(404).json({
+            return res.status(404).json({
                 message : "Task not found"
             });
         }
