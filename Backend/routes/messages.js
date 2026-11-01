@@ -90,4 +90,44 @@ router.get("/:conversationId", protect, async (req, res) => {
     }
 });
 
+// Put (mark messages as read)
+router.put("/:conversationId/read", protect, async (req, res) => {
+    try {
+        // check is the user belongs to the conversation
+        const conversation = await Conversation.findOne({
+            _id: req.params.conversationId,
+            participants: req.user.id
+        });
+
+        if (!conversation) {
+            return res.status(404).json({
+                message: "Conversation not found"
+            });
+        }
+
+        // mark messages sent by the other participant as read
+        const result = await Message.updateMany(
+            {
+                conversation: conversation._id,
+                sender: { $ne: req.user.id },
+                isRead: false
+            },
+            {
+                $set: { isRead: true }
+            }
+        );
+
+        res.status(200).json({
+            message: "Messages marked as read",
+            updatedCount: result.modifiedCount
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to mark messages as read",
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
