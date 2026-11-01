@@ -2,11 +2,12 @@ const express = require("express");
 const router =  express.Router();
 
 const Note = require("../models/Note");
+const protect = require("../middleware/authMiddleware");
 
 //Get (get all notes)
-router.get("/", async(req,res) => {
+router.get("/", protect, async(req,res) => {
     try{
-        const notes = await Note.find().sort({updatedAt: -1});
+        const notes = await Note.find({user: req.user.id}).sort({updatedAt: -1});
         //200 OK
         res.status(200).json(notes);
     }
@@ -20,7 +21,7 @@ router.get("/", async(req,res) => {
 });
 
 //Post (create a new note)
-router.post("/", async(req,res) =>{
+router.post("/", protect, async(req,res) =>{
     try{
         const {title, content} = req.body;
 
@@ -40,7 +41,8 @@ router.post("/", async(req,res) =>{
 
         const newNote = new Note({
             title,
-            content
+            content,
+            user: req.user.id
         });
 
         const savedNote = await newNote.save();
@@ -58,7 +60,7 @@ router.post("/", async(req,res) =>{
 });
 
 //Put (update an existing note)
-router.put("/:id", async(req,res) =>{
+router.put("/:id", protect, async(req,res) =>{
     try{
         if(!req.body){
             //400 Bad Request
@@ -69,9 +71,9 @@ router.put("/:id", async(req,res) =>{
 
         const {title, content} = req.body;
 
-        const updatedNote = await Note.findByIdAndUpdate(
-            req.params.id,
-            {title,content},
+        const updatedNote = await Note.findOneAndUpdate(
+            {_id: req.params.id, user: req.user.id},
+            {title, content},
             {new: true, runValidators: true}
         );
 
@@ -95,9 +97,12 @@ router.put("/:id", async(req,res) =>{
 });
 
 //Delete (delete a note)
-router.delete("/:id", async(req,res) =>{
+router.delete("/:id", protect, async(req,res) =>{
     try{
-        const deletedNote = await Note.findByIdAndDelete(req.params.id);
+        const deletedNote = await Note.findOneAndDelete({
+            _id: req.params.id,
+            user: req.user.id
+        });
 
         if(!deletedNote){
             //404 Not Found
