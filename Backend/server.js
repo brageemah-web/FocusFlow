@@ -11,6 +11,8 @@ const calendarRoutes = require("./routes/calendar");
 const pomodoroRoutes = require("./routes/pomodoro");
 const authRoutes = require("./routes/auth");
 const friendRoutes = require("./routes/friends");
+const conversationRoutes = require("./routes/conversations");
+const messageRoutes = require("./routes/messages");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -25,6 +27,8 @@ app.use("/api/calendar", calendarRoutes);
 app.use("/api/pomodoro", pomodoroRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/friends", friendRoutes);
+app.use("/api/conversations", conversationRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Test route
 app.get("/", (req, res) => {
