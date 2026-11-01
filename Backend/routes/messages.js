@@ -1,0 +1,93 @@
+const express = require("express");
+const router = express.Router();
+
+const Message = require("../models/Message");
+const Conversation = require("../models/Conversation");
+const protect = require("../middleware/authMiddleware");
+
+// Post (send a message)
+router.post("/:conversationId", protect, async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        if (!text || !text.trim()) {
+            return res.status(400).json({
+                message: "Message text is required"
+            });
+        }
+
+        // check if the conversation exists
+        const conversation = await Conversation.findOne({
+            _id: req.params.conversationId,
+            participants: req.user.id
+        });
+
+        if (!conversation) {
+            return res.status(404).json({
+                message: "Conversation not found"
+            });
+        }
+
+        const message = await Message.create({
+            conversation: conversation._id,
+            sender: req.user.id,
+            text: text.trim()
+        });
+
+        // update conversations updatedAt timestamp
+        conversation.updatedAt = new Date();
+        await conversation.save();
+
+        const populatedMessage = await message.populate(
+            "sender",
+            "name email"
+        );
+
+        res.status(201).json({
+            message: "Message sent successfully",
+            data: populatedMessage
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to send message",
+            error: error.message
+        });
+    }
+});
+
+// Get (retrieve messages in a conversation)
+router.get("/:conversationId", protect, async (req, res) => {
+    try {
+        // check if the logged-in user belongs to the conversation
+        const conversation = await Conversation.findOne({
+            _id: req.params.conversationId,
+            participants: req.user.id
+        });
+
+        if (!conversation) {
+            return res.status(404).json({
+                message: "Conversation not found"
+            });
+        }
+
+        const messages = await Message.find({
+            conversation: conversation._id
+        })
+        .populate("sender", "name email")
+        .sort({ createdAt: 1 });
+
+        res.status(200).json({
+            count: messages.length,
+            messages
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to retrieve messages",
+            error: error.message
+        });
+    }
+});
+
+module.exports = router;
