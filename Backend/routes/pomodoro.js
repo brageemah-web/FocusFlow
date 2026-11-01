@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const Pomodoro = require("../models/Pomodoro");
+const protect = require("../middleware/authMiddleware");
 
 //Get (reetrieve all pomodoro sessions)
-router.get("/", async(req, res) => {
+router.get("/", protect, async(req, res) => {
     try{
-        const sessions = await Pomodoro.find().sort({createdAT : -1});
+        const sessions = await Pomodoro.find({user: req.user.id}).sort({ createdAt: -1 });
 
         //200 OK
         res.status(200).json(sessions);
@@ -21,13 +22,13 @@ router.get("/", async(req, res) => {
 });
 
 //Post (create a pomodoro session)
-router.post("/", async(req,res) => {
+router.post("/", protect, async(req,res) => {
     try{
         const {duration, breakDuration, sessionType, completed} = req.body;
 
         if(duration === undefined || duration === null){
             //400 Bad Request
-            res.status(400).json({
+            return res.status(400).json({
                 message : "Session duration is required"
             });
         }
@@ -36,7 +37,8 @@ router.post("/", async(req,res) => {
             duration,
             breakDuration,
             sessionType,
-            completed
+            completed,
+            user: req.user.id
         });
 
         const savedSession = await newSession.save();
@@ -54,14 +56,14 @@ router.post("/", async(req,res) => {
 });
 
 //Put (update a pomodoro session)
-router.put("/:id", async(req,res) =>{
+router.put("/:id", protect, async(req,res) =>{
     try{
         const {duration, breakDuration, sessionType, completed} = req.body;
 
-        const updatedSession =  await Pomodoro.findByIdAndUpdate(
-            req.params.id,
-        {duration,breakDuration,sessionType, completed},
-        {new: true, runValidators: true}
+        const updatedSession =  await Pomodoro.findOneAndUpdate(
+            {_id: req.params.id, user: req.user.id},
+            {duration,breakDuration,sessionType, completed},
+            {new: true, runValidators: true}
         );
 
         if(!updatedSession){
@@ -84,9 +86,12 @@ router.put("/:id", async(req,res) =>{
 });
 
 // Delete (delete a pomodoro session)
-router.delete("/:id", async(req,res) =>{
+router.delete("/:id", protect, async(req,res) =>{
     try{
-        const deletedSession = await Pomodoro.findByIdAndDelete(req.params.id);
+        const deletedSession = await Pomodoro.findOneAndDelete({
+            _id: req.params.id,
+            user: req.user.id
+        });
 
         if(!deletedSession){
             //404 Not Found
