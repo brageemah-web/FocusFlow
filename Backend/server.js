@@ -10,6 +10,7 @@ const noteRoutes = require("./routes/notes");
 const calendarRoutes = require("./routes/calendar");
 const pomodoroRoutes = require("./routes/pomodoro");
 const authRoutes = require("./routes/auth");
+const friendRoutes = require("./routes/friends");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +24,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/calendar", calendarRoutes);
 app.use("/api/pomodoro", pomodoroRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/friends", friendRoutes);
 
 // Test route
 app.get("/", (req, res) => {
