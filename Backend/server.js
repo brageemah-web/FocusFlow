@@ -19,6 +19,8 @@ const messageRoutes = require("./routes/messages");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const onlineUsers = new Map();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -75,7 +77,20 @@ io.use((socket, next) => {
 
 
 io.on("connection", (socket) => {
-    console.log(`User connected: ${socket.user.id}`);
+    const userId = socket.user.id;
+
+    console.log(`User connected: ${userId}`);
+
+    // Mark user as online
+    onlineUsers.set(userId, socket.id);
+
+    // Send the current online users to the newly connected user
+    socket.emit("online_users", Array.from(onlineUsers.keys()));
+
+    io.emit("user_status", {
+        userId,
+        status: "online"
+    });
 
     // Join a conversation room
     socket.on("join_conversation", async (conversationId) => {
@@ -105,7 +120,7 @@ io.on("connection", (socket) => {
             socket.join(conversationId);
 
             console.log(
-                `User ${socket.user.id} joined conversation ${conversationId}`
+                `User ${userId} joined conversation ${conversationId}`
             );
 
         } catch (error) {
@@ -121,11 +136,20 @@ io.on("connection", (socket) => {
         socket.leave(conversationId);
     });
 
+    // Handle disconnection
     socket.on("disconnect", () => {
-        console.log(`User disconnected: ${socket.user.id}`);
+        if (onlineUsers.get(userId) === socket.id) {
+            onlineUsers.delete(userId);
+
+            io.emit("user_status", {
+                userId,
+                status: "offline"
+            });
+        }
+
+        console.log(`User disconnected: ${userId}`);
     });
 });
-
 
 const startServer = async () => {
     try {

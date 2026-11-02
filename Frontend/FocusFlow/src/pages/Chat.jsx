@@ -17,6 +17,8 @@ function Chat() {
     const [loadingFriends, setLoadingFriends] = useState(true);
     const [selectedFriendId, setSelectedFriendId] = useState("");
 
+    const [onlineUsers, setOnlineUsers] = useState([]);
+
     const selectedChat = conversations.find(
         (chat) => chat.id === selectedChatId
     );
@@ -47,9 +49,11 @@ const createConversation = async (event) => {
 
         const newChat = {
             id: conversation._id,
+            friendId: friend._id.toString(),
             name: friend.name,
             username: friend.email,
-            messages: []
+            messages: [],
+            unreadCount: 0
         };
 
         setConversations((current) => {
@@ -209,6 +213,7 @@ useEffect(() => {
 
                     return {
                         id: conversation._id,
+                        friendId: friend?._id.toString(),
                         name: friend?.name || "Unknown User",
                         username: friend?.email || "",
                         messages: [],
@@ -444,6 +449,40 @@ useEffect(() => {
     };
 }, [selectedChatId]);
 
+// Get the initial list of online users
+useEffect(() => {
+    const handleOnlineUsers = (users) => {
+        setOnlineUsers(users);
+    };
+
+    socket.on("online_users", handleOnlineUsers);
+
+    return () => {
+        socket.off("online_users", handleOnlineUsers);
+    };
+}, []);
+
+// Listen for online/offline status changes
+useEffect(() => {
+    const handleUserStatus = (data) => {
+        setOnlineUsers((current) => {
+            if (data.status === "online") {
+                return current.includes(data.userId)
+                    ? current
+                    : [...current, data.userId];
+            }
+
+            return current.filter((id) => id !== data.userId);
+        });
+    };
+
+    socket.on("user_status", handleUserStatus);
+
+    return () => {
+        socket.off("user_status", handleUserStatus);
+    };
+}, []);
+
     return (
         <>
             <Navigation />
@@ -507,6 +546,12 @@ useEffect(() => {
                                             {" "}({chat.unreadCount} unread)
                                         </span>
                                     )}
+                                </p>
+
+                                <p>
+                                    {onlineUsers.includes(chat.friendId)
+                                        ? "🟢 Online"
+                                        : "⚫ Offline"}
                                 </p>
 
                                 <p>{chat.username}</p>
