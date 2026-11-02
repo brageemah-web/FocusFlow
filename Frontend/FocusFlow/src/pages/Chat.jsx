@@ -211,7 +211,8 @@ useEffect(() => {
                         id: conversation._id,
                         name: friend?.name || "Unknown User",
                         username: friend?.email || "",
-                        messages: []
+                        messages: [],
+                        unreadCount: conversation.unreadCount || 0
                     };
                 }
             );
@@ -454,7 +455,16 @@ useEffect(() => {
                     ) : (
                         conversations.map((chat) => (
                             <article key={chat.id}>
-                                <p>{chat.name}</p>
+                                <p>
+                                    {chat.name}
+
+                                    {chat.unreadCount > 0 && (
+                                        <span>
+                                            {" "}({chat.unreadCount} unread)
+                                        </span>
+                                    )}
+                                </p>
+
                                 <p>{chat.username}</p>
 
                                 <button
