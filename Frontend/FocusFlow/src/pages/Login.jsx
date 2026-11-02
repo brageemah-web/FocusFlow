@@ -67,10 +67,6 @@ function Login(){
         }
     };
 
-    const handleForgetPassword = (event) => {
-        event.preventDefault();
-        setError("Password recovery will be available soon.");
-    };
 
     return(
         <div className = "loginPage">
@@ -81,7 +77,7 @@ function Login(){
                     Login to your account to continue
                 </p>
 
-                <form>
+                <form onSubmit={handleLogin}>
                     <label htmlFor = "email" >Email</label><br/>
                     <input type = "email" 
                     id = "email" 
@@ -92,7 +88,7 @@ function Login(){
                     /><br/>
 
                     <label htmlFor = "password" >Password</label><br/>
-                    <input type = "password" 
+                    <input type={showPassword ? "text" : "password"} 
                     id = "password" 
                     placeholder = "Enter your password" 
                     value = {password} 
@@ -109,12 +105,14 @@ function Login(){
                     </label>
 
                     <div className = "forgotPassword">
-                        <a href = "#" onClick = {handleForgetPassword}>Forget Password?</a><br/>
+                        <Link to="/forgot-password">Forgot Password?</Link>
                     </div>
 
                     {error && <p className = "formError">{error}</p>}
                     
-                    <button onClick = {handleLogin}>Login</button>
+                    <button type="submit" disabled={loading}>
+                        {loading ? "Logging in..." : "Login"}
+                    </button>
                 </form>
                 <p className = "registerPrompt">Not a member? 
                     <Link to = "/register">Register</Link>
