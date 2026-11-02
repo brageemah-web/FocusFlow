@@ -1,5 +1,6 @@
 import {useState} from "react";
 import { useNavigate, Link } from "react-router-dom";
+import socket from "../socket";
 
 
 function Login(){
@@ -8,9 +9,10 @@ function Login(){
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
   
-    const handleLogin = (event) => {
+    const handleLogin = async (event) => {
         event.preventDefault();
         setError("");
 
@@ -19,9 +21,46 @@ function Login(){
             return;
         }
 
-        // Temporary navigation until backend authentication is added
-        navigate("/dashboard");
-    }
+        try {
+            setLoading(true);
+
+            // Send login details to the backend
+            const response = await fetch("http://localhost:5000/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: email.trim(),
+                    password
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Login failed.");
+            }
+
+            // Save the JWT token
+            localStorage.setItem("token", data.token);
+
+            // Connect Socket.IO using the JWT token
+            socket.auth = {
+                token: data.token
+            };
+
+            socket.connect();
+
+            // Navigate to dashboard
+            navigate("/dashboard");
+
+        } catch (error) {
+            setError(error.message || "Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleForgetPassword = (event) => {
         event.preventDefault();
