@@ -129,7 +129,6 @@ const upcomingDeadlines = [
             session.completed
     );
 
-    const completedSessions = completedStudySessions.length;
 
     const focusMinutes = completedStudySessions.reduce(
         (total, session) => total + session.duration,
@@ -211,19 +210,10 @@ const upcomingDeadlines = [
                             <p>No incomplete tasks are due today.</p>
                         ) : (
                             <ul>
-                                {recentNotes.map((note) => (
-                                    <li key={note._id}>
-                                        <strong>
-                                            {note.title || "Untitled note"}
-                                        </strong>
-
-                                        {note.content && (
-                                            <p>
-                                                {note.content.length > 80
-                                                    ? `${note.content.slice(0, 80)}...`
-                                                    : note.content}
-                                            </p>
-                                        )}
+                                {todaysTasks.slice(0, 5).map((task) => (
+                                    <li key={task._id}>
+                                        <strong>{task.title}</strong>
+                                        <p>Due today</p>
                                     </li>
                                 ))}
                             </ul>
@@ -252,7 +242,7 @@ const upcomingDeadlines = [
                         ) : (
                             <ul>
                                 {recentNotes.map((note) => (
-                                    <li key={note.id}>
+                                    <li key={note._id}>
                                         <strong>
                                             {note.title || "Untitled note"}
                                         </strong>

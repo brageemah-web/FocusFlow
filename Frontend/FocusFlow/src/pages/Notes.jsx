@@ -152,21 +152,21 @@ function Notes() {
         <>
             <Navigation />
 
-            <main>
+            <main className="notesContent">
                 <h1>Notes</h1>
                 <p>
                     Keep your ideas, reminders, and study notes
                     organised in one place.
                 </p>
 
-                <section>
+                <section className="noteFormSection">
                     <h2>
                         {editingNoteId !== null
                             ? "Edit Note"
                             : "Create a Note"}
                     </h2>
 
-                    <form
+                    <form className="noteForm"
                         onSubmit={
                             editingNoteId !== null
                                 ? saveNoteChanges
@@ -207,14 +207,14 @@ function Notes() {
                             />
                         </div>
 
-                        <button type="submit">
+                        <button type="submit" className="saveButton">
                             {editingNoteId
                                 ? "Save Changes"
                                 : "Save Note"}
                         </button>
 
                         {editingNoteId !== null && (
-                            <button
+                            <button className="cancelButton"
                                 type="button"
                                 onClick={clearForm}
                             >
@@ -224,14 +224,14 @@ function Notes() {
                     </form>
                 </section>
 
-                <section>
+                <section className="notesListSection">
                     <h2>My Notes ({notes.length})</h2>
 
                     <label htmlFor="searchNotes">
                         Search notes
                     </label>
 
-                    <input
+                    <input className="notesSearch"
                         id="searchNotes"
                         type="search"
                         value={searchTerm}
@@ -249,7 +249,7 @@ function Notes() {
                         </p>
                     ) : (
                         filteredNotes.map((note) => (
-                            <article key={note._id}>
+                            <article className="noteCard" key={note._id}>
                                 <h3>{note.title || "Untitled note"}</h3>
                                 <p>{note.content}</p>
 
@@ -274,8 +274,8 @@ function Notes() {
                                         </p>
                                     )}
 
-                                <div>
-                                    <button
+                                <div className="noteActions">
+                                    <button className="editButton"
                                         type="button"
                                         onClick={() =>
                                             startEditing(note)
@@ -284,7 +284,7 @@ function Notes() {
                                         Edit
                                     </button>
 
-                                    <button
+                                    <button className="deleteButton"
                                         type="button"
                                         onClick={() =>
                                             deleteNote(note._id)

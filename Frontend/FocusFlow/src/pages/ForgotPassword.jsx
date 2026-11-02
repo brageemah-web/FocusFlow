@@ -29,15 +29,17 @@ function ForgotPassword() {
     };
 
     return (
-        <main>
-            <h1>Forgot Password?</h1>
+        <main className="forgotPasswordPage">
+    <div className="forgotPasswordCard">
+        <h1>Forgot Password?</h1>
 
-            <p>
-                Enter your registered email address and we'll send
-                you a password reset link.
-            </p>
+        <p className="forgotPasswordDescription">
+            Enter your registered email address and we'll send
+            you a password reset link.
+        </p>
 
-            <form onSubmit={handleSubmit}>
+        <form className="forgotPasswordForm" onSubmit={handleSubmit}>
+            <div>
                 <label htmlFor="email">Email Address</label>
 
                 <input
@@ -48,16 +50,24 @@ function ForgotPassword() {
                     onChange={(event) => setEmail(event.target.value)}
                     required
                 />
+            </div>
 
-                <button type="submit" disabled={loading}>
-                    {loading ? "Sending..." : "Send Reset Link"}
-                </button>
-            </form>
+            <button type="submit" disabled={loading}>
+                {loading ? "Sending..." : "Send Reset Link"}
+            </button>
+        </form>
 
-            {message && <p role="status">{message}</p>}
+        {message && (
+            <p className="forgotPasswordMessage" role="status">
+                {message}
+            </p>
+        )}
 
-            <Link to="/">Back to Login</Link>
-        </main>
+        <Link className="backToLogin" to="/">
+            Back to Login
+        </Link>
+    </div>
+</main>
     );
 }
 

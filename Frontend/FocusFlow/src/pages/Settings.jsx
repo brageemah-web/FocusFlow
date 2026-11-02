@@ -9,7 +9,9 @@ function Settings() {
         email: "",
     });
 
-    const [appearance, setAppearance] = useState("light");
+    const [appearance, setAppearance] = useState(() => {
+        return localStorage.getItem("appearance") || "light";
+    });
 
     const [notifications, setNotifications] = useState({
         taskReminders: true,
@@ -102,22 +104,50 @@ function Settings() {
         }
     };
 
+    useEffect(() => {
+        const applyTheme = () => {
+            let theme = appearance;
+
+            if (appearance === "system") {
+                theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+            }
+
+            document.documentElement.setAttribute("data-theme", theme);
+        };
+
+        localStorage.setItem("appearance", appearance);
+
+        applyTheme();
+
+        if (appearance === "system") {
+            const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+            mediaQuery.addEventListener("change", applyTheme);
+
+            return () => {
+                mediaQuery.removeEventListener("change", applyTheme);
+            };
+        }
+    }, [appearance]);
+
 
     return (
         <>
             <Navigation />
 
-            <main>
+            <main className="settingsContent">
                 <h1>Settings</h1>
                 <p>Manage your FocusFlow preferences.</p>
 
-                <section>
+                <section className="settingsSection profileSection">
                     <h2>Profile</h2>
 
                     {loading ? (
                         <p>Loading profile...</p>
                     ) : (
-                        <form onSubmit={updateProfile}>
+                        <form className="settingsForm" onSubmit={updateProfile}>
                             <div>
                                 <label htmlFor="name">Name</label>
                                 <input
@@ -154,14 +184,18 @@ function Settings() {
                         </form>
                     )}
 
-                    {message && <p role="status">{message}</p>}
+                    {message && (
+                        <p className="settingsMessage" role="status">
+                            {message}
+                        </p>
+                    )}
                 </section>
 
-                <section>
+                <section className="settingsSection appearanceSection">
                     <h2>Appearance</h2>
 
                     <label htmlFor="appearance">Theme</label>
-                    <select
+                    <select className="themeSelect"
                         id="appearance"
                         value={appearance}
                         onChange={(event) =>
@@ -180,11 +214,11 @@ function Settings() {
                     </p>
                 </section>
 
-                <section>
+                <section className="settingsSection passwordSection">
                     <h2>Change Password</h2>
 
-                    <form onSubmit={updatePassword}>
-                        <input
+                    <form className="settingsForm" onSubmit={updatePassword}>
+                        <input className="passwordInput"
                             type="password"
                             placeholder="Current Password"
                             value={passwordData.currentPassword}
@@ -197,7 +231,7 @@ function Settings() {
                             required
                         />
 
-                        <input
+                        <input className="passwordInput"
                             type="password"
                             placeholder="New Password"
                             value={passwordData.newPassword}
@@ -225,16 +259,18 @@ function Settings() {
                             required
                         />
 
-                        <button type="submit">Update Password</button>
+                        <button className="updatePasswordButton" type="submit">
+                             Update Password
+                        </button>
                     </form>
                 </section>
 
                 {message && <p role="status">{message}</p>}
 
-                <section>
+                <section className="settingsSection notificationSection">
                     <h2>Notifications</h2>
 
-                    <label>
+                    <label className="notificationOption">
                         <input
                             type="checkbox"
                             checked={notifications.taskReminders}

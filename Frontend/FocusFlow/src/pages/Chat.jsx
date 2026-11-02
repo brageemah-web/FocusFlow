@@ -488,23 +488,23 @@ useEffect(() => {
         <>
             <Navigation />
 
-            <main>
+            <main className="chatContent">
                 <h1>Chat</h1>
                 <p>
                     Connect with your friends and keep each other motivated.
                 </p>
 
                 {statusMessage && (
-                    <p role="status" aria-live="polite">
+                    <p className="chatStatusMessage" role="status" aria-live="polite">
                         {statusMessage}
                     </p>
                 )}
 
-                <section>
+                <section className="newConversationSection">
                     <h2>Start New Conversation</h2>
 
                     
-                <form onSubmit={createConversation}>
+                <form className="newConversationForm" onSubmit={createConversation}>
                     <label htmlFor="friendSelect">
                         Select a friend
                     </label>
@@ -524,22 +524,23 @@ useEffect(() => {
                         ))}
                     </select>
 
-                    <button type="submit" disabled={!selectedFriendId}>
+                    <button className="startConversationButton"
+                        type="submit" disabled={!selectedFriendId}>
                         Start Conversation
                     </button>
                 </form>
 
                 </section>
 
-                <section>
+                <section className="conversationsSection">
                     <h2>Conversations ({conversations.length})</h2>
 
                     {loadingConversations ? (
                         <p>Loading conversations...</p>
                     ) : (
                         conversations.map((chat) => (
-                            <article key={chat.id}>
-                                <p>
+                          <article className="conversationCard" key={chat.id}>
+                                <p className="conversationName">
                                     {chat.name}
 
                                     {chat.unreadCount > 0 && (
@@ -549,15 +550,13 @@ useEffect(() => {
                                     )}
                                 </p>
 
-                                <p>
-                                    {onlineUsers.includes(chat.friendId)
-                                        ? "🟢 Online"
-                                        : "⚫ Offline"}
+                                <p className={`onlineStatus ${onlineUsers.includes(chat.friendId) ? "online" : "offline"}`}>
+                                    {onlineUsers.includes(chat.friendId) ? "Online" : "Offline"}
                                 </p>
 
-                                <p>{chat.username}</p>
+                                <p className="conversationUsername">{chat.username}</p>
 
-                                <button
+                                <button className="openChatButton"
                                     type="button"
                                     onClick={() => setSelectedChatId(chat.id)}
                                 >
@@ -569,18 +568,14 @@ useEffect(() => {
                 </section>
 
                 {selectedChat && (
-                    <section>
-                        <h2>Chat with {selectedChat.name}</h2>
+                    <section className="activeChatSection">
+                        <h2 className="activeChatHeading">Chat with {selectedChat.name}</h2>
                         <p>@{selectedChat.username}</p>
 
                         <div
+                            className="messagesContainer"
                             aria-label={`Messages with ${selectedChat.name}`}
                             aria-live="polite"
-                            style={{
-                                border: "1px solid #ccc",
-                                padding: "16px",
-                                minHeight: "250px",
-                            }}
                         >
                             {loadingMessages ? (
                                 <p>Loading messages...</p>
@@ -588,8 +583,11 @@ useEffect(() => {
                                 <p>No messages yet. Start the conversation!</p>
                             ) : (
                                 selectedChat.messages.map((item) => (
-                                    <article key={item.id}>
-                                        <p>
+                                    <article
+                                        className={`messageBubble ${item.sender === "me" ? "myMessage" : "friendMessage"}`}
+                                        key={item.id}
+                                    >
+                                            <p>
                                             <strong>
                                                 {item.sender === "me"
                                                     ? "You"
@@ -597,19 +595,19 @@ useEffect(() => {
                                             </strong>
                                         </p>
 
-                                        <p>{item.text}</p>
+                                        <p className="messageText">{item.text}</p>
 
-                                        <small>
+                                        <small className="messageTimestamp">
                                             {new Date(item.createdAt).toLocaleString()}
                                         </small>
                                         {item.sender === "me" && (
-                                            <small>
+                                            <small className="readReceipt">
                                                 {item.isRead ? "✓✓ Read" : "✓ Sent"}
                                             </small>
                                         )}
 
                                         {item.sender === "me" && (
-                                            <button
+                                            <button className="deleteMessageButton"
                                                 type="button"
                                                 onClick={() => deleteMessage(item.id)}
                                             >
@@ -621,12 +619,12 @@ useEffect(() => {
                             )}
                         </div>
 
-                        <form onSubmit={sendMessage}>
+                        <form className="messageForm" onSubmit={sendMessage}>
                             <label htmlFor="chatMessage">
                                 Type a message
                             </label>
 
-                            <input
+                            <input  className="messageInput"
                                 id="chatMessage"
                                 type="text"
                                 value={message}
@@ -637,7 +635,7 @@ useEffect(() => {
                                 required
                             />
 
-                            <button
+                            <button className="sendMessageButton"
                                 type="submit"
                                 disabled={!message.trim()}
                             >
