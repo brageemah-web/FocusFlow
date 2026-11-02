@@ -312,6 +312,32 @@ useEffect(() => {
     };
 }, []);
 
+// Listen for real-time message deletion
+useEffect(() => {
+    const handleMessageDeleted = (data) => {
+        console.log("Message deleted event received:", data);
+
+        setConversations((current) =>
+            current.map((chat) =>
+                chat.id === data.conversationId
+                    ? {
+                        ...chat,
+                        messages: chat.messages.filter(
+                            (item) => item.id !== data.messageId
+                        )
+                    }
+                    : chat
+            )
+        );
+    };
+
+    socket.on("message_deleted", handleMessageDeleted);
+
+    return () => {
+        socket.off("message_deleted", handleMessageDeleted);
+    };
+}, []);
+
 // Join the selected conversation room
 useEffect(() => {
     if (!selectedChatId) return;

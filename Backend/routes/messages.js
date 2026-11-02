@@ -166,6 +166,14 @@ router.delete("/:conversationId/:messageId", protect, async (req, res) => {
             });
         }
 
+        // Broadcast the deletion to everyone in the conversation
+        const io = req.app.get("io");
+
+        io.to(conversation._id.toString()).emit("message_deleted", {
+            conversationId: conversation._id.toString(),
+            messageId: message._id.toString()
+        });
+
         res.status(200).json({
             message: "Message deleted successfully"
         });
