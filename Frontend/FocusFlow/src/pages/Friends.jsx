@@ -17,7 +17,7 @@ function Friends() {
 
 
     // User search requires the backend.
-    const searchUsers = (event) => {
+    const searchUsers = async (event) => {
         event.preventDefault();
 
         if (!searchTerm.trim()) {
@@ -26,51 +26,100 @@ function Friends() {
             return;
         }
 
-        setSearchResults([]);
-        setMessage(
-            "User search will be available when the backend is connected."
-        );
-    };
+        try {
+        setMessage("");
 
-    const sendFriendRequest = (user) => {
-        const alreadyFriend = friends.some(
-            (friend) => friend.id === user.id
-        );
+        const results = await api(`/friends/search?search=${encodeURIComponent(searchTerm.trim())}`);
 
-        const alreadySent = sentRequests.some(
-            (request) => request.id === user.id
+        setSearchResults(
+            results.map((user) => ({
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }))
         );
 
-        if (alreadyFriend || alreadySent) return;
+        if (results.length === 0) {
+            setMessage("No users found.");
+        }
+    } catch (error) {
+        console.error("User search failed:", error);
+        setMessage(error.message);
+    }
+};
 
-        setSentRequests((current) => [...current, user]);
+    const sendFriendRequest = async (user) => {
+    try {
+        const response = await api(
+            `/friends/request/${user.id}`,
+            {
+                method: "POST"
+            }
+        );
+
+        setSentRequests((current) => [
+            ...current,
+            {
+                id: response.request._id,
+                userId: user.id,
+                name: user.name,
+                email: user.email
+            }
+        ]);
+
         setSearchResults((current) =>
             current.filter((result) => result.id !== user.id)
         );
-        setMessage(`Friend request sent to ${user.name}.`);
-    };
 
-    const acceptRequest = (request) => {
-        setFriends((current) =>
-            current.some((friend) => friend.id === request.id)
-                ? current
-                : [...current, request]
-        );
+        setMessage(`Friend request sent to ${user.name}.`);
+    } catch (error) {
+        console.error("Failed to send friend request:", error);
+        setMessage(error.message);
+    }
+};
+
+    const acceptRequest = async (request) => {
+    try {
+        await api(`/friends/requests/${request.id}/accept`, {
+            method: "PUT"
+        });
+
+        setFriends((current) => [
+            ...current,
+            {
+                _id: request.userId,
+                name: request.name,
+                email: request.email
+            }
+        ]);
 
         setReceivedRequests((current) =>
             current.filter((item) => item.id !== request.id)
         );
 
         setMessage(`You are now friends with ${request.name}.`);
-    };
+    } catch (error) {
+        console.error("Failed to accept friend request:", error);
+        setMessage(error.message);
+    }
+};
 
-    const declineRequest = (requestId) => {
+    const declineRequest = async (requestId) => {
+    try {
+        await api(`/friends/requests/${requestId}/reject`, {
+            method: "PUT"
+        });
+
         setReceivedRequests((current) =>
             current.filter((request) => request.id !== requestId)
         );
 
         setMessage("Friend request declined.");
-    };
+    } catch (error) {
+        console.error("Failed to decline friend request:", error);
+        setMessage(error.message);
+    }
+};
 
     const cancelRequest = (requestId) => {
         setSentRequests((current) =>
