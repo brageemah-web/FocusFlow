@@ -271,20 +271,6 @@ function Settings() {
                         Friend request notifications
                     </label>
                 </section>
-
-                <section>
-                    <h2>Account</h2>
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setMessage(
-                                "Sign-out will be available after authentication is connected."
-                            )
-                        }
-                    >
-                        Sign Out
-                    </button>
-                </section>
             </main>
         </>
     );

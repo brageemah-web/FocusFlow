@@ -436,18 +436,19 @@ useEffect(() => {
 
 // Join the selected conversation room
 useEffect(() => {
-    if (!selectedChatId) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+        console.error("No authentication token found.");
+        return;
+    }
+
+    socket.auth = { token };
 
     if (!socket.connected) {
         socket.connect();
     }
 
-    socket.emit("join_conversation", selectedChatId);
-
-    return () => {
-        socket.emit("leave_conversation", selectedChatId);
-    };
-}, [selectedChatId]);
+}, []);
 
 // Get the initial list of online users
 useEffect(() => {
