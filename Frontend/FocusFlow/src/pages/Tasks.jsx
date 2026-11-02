@@ -1,19 +1,31 @@
 
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
-const STORAGE_KEY = "focusflow_tasks";
+
 
 function Tasks() {
-    const [tasks, setTasks] = useState(() => {
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
+    
+
+    useEffect(() => {
+    const fetchTasks = async () => {
         try {
-            const savedTasks = localStorage.getItem(STORAGE_KEY);
-            return savedTasks ? JSON.parse(savedTasks) : [];
+            const data = await api("/tasks");
+            setTasks(data);
         } catch (error) {
-            console.error("Could not load tasks:", error);
-            return [];
+            console.error("Failed to retrieve tasks:", error);
+            setMessage(error.message);
+        } finally {
+            setLoading(false);
         }
-    });
+    };
+
+    fetchTasks();
+}, []);
 
     const [taskTitle, setTaskTitle] = useState("");
     const [taskDescription, setTaskDescription] = useState("");
@@ -22,68 +34,82 @@ function Tasks() {
     // Track the task currently being edited.
     const [editingTaskId, setEditingTaskId] = useState(null);
 
-    useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-        } catch (error) {
-            console.error("Could not save tasks:", error);
-        }
-    }, [tasks]);
 
     // Add a new task.
-    const addTask = (event) => {
-        event.preventDefault();
+    const addTask = async (event) => {
+    event.preventDefault();
 
-        const title = taskTitle.trim();
+    const title = taskTitle.trim();
 
-        if (!title) return;
+    if (!title) return;
 
-        const newTask = {
-            id: crypto.randomUUID(),
-            title,
-            description: taskDescription.trim(),
-            dueDate: taskDueDate,
-            completed: false,
-            createdAt: new Date().toISOString(),
-        };
+    try {
+        const newTask = await api("/tasks", {
+            method: "POST",
+            body: JSON.stringify({
+                title,
+                description: taskDescription.trim(),
+                dueDate: taskDueDate || null,
+                completed: false,
+            }),
+        });
 
-        setTasks((currentTasks) => [...currentTasks, newTask]);
+        setTasks((currentTasks) => [newTask, ...currentTasks]);
 
         clearForm();
-    };
+        setMessage("Task added successfully.");
+    } catch (error) {
+        console.error("Failed to add task:", error);
+        setMessage(error.message);
+    }
+};
 
     // Fill the form with the selected task's details.
     const startEditing = (task) => {
-        setEditingTaskId(task.id);
+        setEditingTaskId(task._id);
         setTaskTitle(task.title || "");
         setTaskDescription(task.description || "");
         setTaskDueDate(task.dueDate || "");
     };
 
     // Save changes to the existing task.
-    const saveTaskChanges = (event) => {
-        event.preventDefault();
+    const saveTaskChanges = async (event) => {
+    event.preventDefault();
 
-        const title = taskTitle.trim();
+    const title = taskTitle.trim();
 
-        if (!title || editingTaskId === null) return;
+    if (!title || editingTaskId === null) return;
+
+    const existingTask = tasks.find(
+        (task) => task._id === editingTaskId
+    );
+
+    if (!existingTask) return;
+
+    try {
+        const updatedTask = await api(`/tasks/${editingTaskId}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                title,
+                description: taskDescription.trim(),
+                dueDate: taskDueDate || null,
+                completed: existingTask.completed,
+            }),
+        });
 
         setTasks((currentTasks) =>
             currentTasks.map((task) =>
-                task.id === editingTaskId
-                    ? {
-                          ...task,
-                          title,
-                          description: taskDescription.trim(),
-                          dueDate: taskDueDate,
-                          updatedAt: new Date().toISOString(),
-                      }
-                    : task
+                task._id === editingTaskId ? updatedTask : task
             )
         );
 
         clearForm();
-    };
+        setMessage("Task updated successfully.");
+    } catch (error) {
+        console.error("Failed to update task:", error);
+        setMessage(error.message);
+    }
+};
 
     // Clear the form and exit editing mode.
     const clearForm = () => {
@@ -94,26 +120,65 @@ function Tasks() {
     };
 
     // Mark a task as completed or incomplete.
-    const toggleTask = (taskId) => {
+    const toggleTask = async (taskId) => {
+    const task = tasks.find((task) => task._id === taskId);
+
+    if (!task) return;
+
+    try {
+        const updatedTask = await api(`/tasks/${taskId}`, {
+            method: "PUT",
+            body: JSON.stringify({
+                title: task.title,
+                description: task.description,
+                dueDate: task.dueDate,
+                completed: !task.completed,
+            }),
+        });
+
         setTasks((currentTasks) =>
             currentTasks.map((task) =>
-                task.id === taskId
-                    ? { ...task, completed: !task.completed }
-                    : task
+                task._id === taskId ? updatedTask : task
             )
         );
-    };
 
+        setMessage(
+            updatedTask.completed
+                ? "Task marked as complete."
+                : "Task marked as incomplete."
+        );
+    } catch (error) {
+        console.error("Failed to update task status:", error);
+        setMessage(error.message);
+    }
+};
     // Delete a task.
-    const deleteTask = (taskId) => {
+    const deleteTask = async (taskId) => {
+    const confirmed = window.confirm(
+        "Are you sure you want to delete this task?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+        await api(`/tasks/${taskId}`, {
+            method: "DELETE",
+        });
+
         setTasks((currentTasks) =>
-            currentTasks.filter((task) => task.id !== taskId)
+            currentTasks.filter((task) => task._id !== taskId)
         );
 
         if (editingTaskId === taskId) {
             clearForm();
         }
-    };
+
+        setMessage("Task deleted successfully.");
+    } catch (error) {
+        console.error("Failed to delete task:", error);
+        setMessage(error.message);
+    }
+};
 
     return (
         <>
@@ -197,53 +262,52 @@ function Tasks() {
                 <section>
                     <h2>My Tasks ({tasks.length})</h2>
 
-                    {tasks.length === 0 ? (
+                    {message && <p role="status">{message}</p>}
+
+                    {loading ? (
+                        <p>Loading tasks...</p>
+                    ) : tasks.length === 0 ? (
                         <p>No tasks yet. Add your first task above!</p>
                     ) : (
                         tasks.map((task) => (
-                            <article key={task.id}>
+                            <article key={task._id}>
                                 <label>
                                     <input
                                         type="checkbox"
-                                        checked={
-                                            task.completed === true ||
-                                            task.isCompleted === true
-                                        }
-                                        onChange={() => toggleTask(task.id)}
+                                        checked={task.completed}
+                                        onChange={() => toggleTask(task._id)}
                                     />
 
                                     <span
                                         style={{
-                                            textDecoration:
-                                                task.completed ||
-                                                task.isCompleted
-                                                    ? "line-through"
-                                                    : "none",
+                                            textDecoration: task.completed
+                                                ? "line-through"
+                                                : "none",
                                         }}
                                     >
                                         {task.title}
                                     </span>
                                 </label>
 
-                                {task.description && (
-                                    <p>{task.description}</p>
-                                )}
-
+                                {task.description && <p>{task.description}</p>}
                                 {task.dueDate && (
-                                    <p>Due: {task.dueDate}</p>
+                                    <p>
+                                        Due: {new Date(task.dueDate).toLocaleDateString("en-ZA", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                            timeZone: "UTC",
+                                        })}
+                                    </p>
                                 )}
 
-                                <button
-                                    type="button"
-                                    onClick={() => startEditing(task)}
-                                >
+                                <button type="button"
+                                    onClick={() => startEditing(task)}>
                                     Edit
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => deleteTask(task.id)}
-                                >
+                                <button type="button"
+                                    onClick={() => deleteTask(task._id)}>
                                     Delete
                                 </button>
                             </article>
