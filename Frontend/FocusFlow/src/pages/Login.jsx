@@ -1,7 +1,7 @@
 import {useState} from "react";
 import { useNavigate, Link } from "react-router-dom";
 import socket from "../socket";
-
+import api from "../api";
 
 function Login(){
     const navigate = useNavigate();
@@ -25,26 +25,13 @@ function Login(){
             setLoading(true);
 
             // Send login details to the backend
-            const response = await fetch("http://localhost:5000/api/auth/login", {
+            const data = await api("/auth/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
                 body: JSON.stringify({
                     email: email.trim(),
                     password
                 })
             });
-
-            const data = await response.json();
-
-            console.log("Full login response:", data);
-            console.log("User object:", data.user);
-            console.log("User ID:", data.user?._id);
-
-            if (!response.ok) {
-                throw new Error(data.message || "Login failed.");
-            }
 
             // Save the JWT token
             localStorage.setItem("token", data.token);
