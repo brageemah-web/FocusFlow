@@ -246,6 +246,14 @@ useEffect(() => {
                 method: "PUT"
             });
 
+            setConversations((current) =>
+                current.map((chat) =>
+                    chat.id === selectedChatId
+                        ? { ...chat, unreadCount: 0 }
+                        : chat
+                )
+            );
+
             console.log("Messages retrieved:", data.messages);
 
             const currentUserId = localStorage.getItem("userId");
@@ -328,6 +336,42 @@ useEffect(() => {
         socket.off("receive_message", handleReceiveMessage);
     };
 }, []);
+
+// Listen for new message notifications
+useEffect(() => {
+    const handleNewMessageNotification = (data) => {
+        const currentUserId = localStorage.getItem("userId");
+
+        // Don't increase the count for your own messages
+        if (data.senderId === currentUserId) return;
+
+        // Don't increase the count if this conversation is currently open
+        if (data.conversationId === selectedChatId) return;
+
+        setConversations((current) =>
+            current.map((chat) =>
+                chat.id === data.conversationId
+                    ? {
+                        ...chat,
+                        unreadCount: (chat.unreadCount || 0) + 1
+                    }
+                    : chat
+            )
+        );
+    };
+
+    socket.on(
+        "new_message_notification",
+        handleNewMessageNotification
+    );
+
+    return () => {
+        socket.off(
+            "new_message_notification",
+            handleNewMessageNotification
+        );
+    };
+}, [selectedChatId]);
 
 // Listen for real-time message deletion
 useEffect(() => {
