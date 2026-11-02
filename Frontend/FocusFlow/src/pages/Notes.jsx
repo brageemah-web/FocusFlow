@@ -1,36 +1,37 @@
 
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
-const STORAGE_KEY = "focusflow_notes";
 
 function Notes() {
-    const [notes, setNotes] = useState(() => {
-        try {
-            const savedNotes = localStorage.getItem(STORAGE_KEY);
-            return savedNotes ? JSON.parse(savedNotes) : [];
-        } catch (error) {
-            console.error("Could not load notes:", error);
-            return [];
-        }
-    });
+    const [notes, setNotes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
 
     const [noteTitle, setNoteTitle] = useState("");
     const [noteContent, setNoteContent] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [editingNoteId, setEditingNoteId] = useState(null);
 
-    // Save notes whenever they change.
-    useEffect(() => {
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(notes)
-            );
-        } catch (error) {
-            console.error("Could not save notes:", error);
-        }
-    }, [notes]);
+    useEffect(() =>{
+        const fetchNotes = async () =>{
+            try{
+                const data = await api("/notes");
+                console.log("Notes retrieved from backend: ", data);
+                setNotes(data);
+            }
+            catch(error){
+                console.error("Failed to retrieve notes: ", error);
+                setMessage(error.message);
+            }
+            finally{
+                setLoading(false);
+            }
+        };
+        fetchNotes();
+    }, []);
+
 
     // Clear the form and exit editing mode.
     const clearForm = () => {
@@ -40,41 +41,52 @@ function Notes() {
     };
 
     // Create a new note.
-    const addNote = (event) => {
+    const addNote = async (event) => {
         event.preventDefault();
 
         const title = noteTitle.trim();
         const content = noteContent.trim();
 
-        if (!title || !content) return;
+        if (!title || !content){
+            setMessage("Please enter a title and not content");
+            return;
+        }
 
-        const now = new Date().toISOString();
-
-        const newNote = {
-            id: crypto.randomUUID(),
+        const noteData = {
             title,
             content,
-            createdAt: now,
-            updatedAt: now,
         };
 
-        setNotes((currentNotes) => [
-            newNote,
-            ...currentNotes,
-        ]);
+        try{
 
-        clearForm();
+            const newNote = await api("/notes",{
+                method : "POST",
+                body: JSON.stringify(noteData)
+            })
+
+            setNotes((currentNotes) => [
+                newNote,
+                ...currentNotes,
+            ]);
+
+            clearForm();
+            setMessage("Failed to create note");
+        }
+        catch(error){
+            console.error("Failed to create note: ", error);
+            setMessage(error.message);
+        }
     };
 
     // Load an existing note into the form.
     const startEditing = (note) => {
-        setEditingNoteId(note.id);
+        setEditingNoteId(note._id);
         setNoteTitle(note.title || "");
         setNoteContent(note.content || "");
     };
 
     // Save changes to the existing note.
-    const saveNoteChanges = (event) => {
+    const saveNoteChanges = async (event) => {
         event.preventDefault();
 
         const title = noteTitle.trim();
@@ -84,33 +96,46 @@ function Notes() {
             return;
         }
 
-        setNotes((currentNotes) =>
-            currentNotes.map((note) =>
-                note.id === editingNoteId
-                    ? {
-                          ...note,
-                          title,
-                          content,
-                          updatedAt: new Date().toISOString(),
-                      }
-                    : note
-            )
-        );
+        try {
+            const updatedNote = await api(`/notes/${editingNoteId}`, {
+                method: "PUT",
+                body: JSON.stringify({ title, content })
+            });
 
-        clearForm();
+            setNotes((currentNotes) =>
+                currentNotes.map((note) =>
+                    note._id === editingNoteId ? updatedNote : note
+                )
+            );
+
+            clearForm();
+            setMessage("Note updated successfully.");
+
+        } catch (error) {
+            console.error("Failed to update note:", error);
+            setMessage(error.message);
+        }
     };
 
     // Delete a note.
-    const deleteNote = (noteId) => {
+    const deleteNote = async (noteId) => {
+        try{
+            await api(`/notes/${noteId}`,{
+                method : "DELETE"
+            });
+
         setNotes((currentNotes) =>
             currentNotes.filter(
-                (note) => note.id !== noteId
+                (note) => note._id !== noteId
             )
         );
 
-        if (editingNoteId === noteId) {
-            clearForm();
-        }
+        setMessage("Notes deleted successfully.");
+    }
+    catch(error){
+        console.error("Failed to delete note: ", error);
+        setMessage(error.message);
+    }
     };
 
     // Search note titles and content.
@@ -183,7 +208,7 @@ function Notes() {
                         </div>
 
                         <button type="submit">
-                            {editingNoteId !== null
+                            {editingNoteId
                                 ? "Save Changes"
                                 : "Save Note"}
                         </button>
@@ -224,7 +249,7 @@ function Notes() {
                         </p>
                     ) : (
                         filteredNotes.map((note) => (
-                            <article key={note.id}>
+                            <article key={note._id}>
                                 <h3>{note.title || "Untitled note"}</h3>
                                 <p>{note.content}</p>
 
@@ -262,7 +287,7 @@ function Notes() {
                                     <button
                                         type="button"
                                         onClick={() =>
-                                            deleteNote(note.id)
+                                            deleteNote(note._id)
                                         }
                                     >
                                         Delete
