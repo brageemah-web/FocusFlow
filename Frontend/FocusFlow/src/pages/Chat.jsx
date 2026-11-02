@@ -70,7 +70,6 @@ const createConversation = async (event) => {
 };
 
 
-    // Send a message
 // Send a message
 const sendMessage = async (event) => {
     event.preventDefault();
@@ -97,14 +96,24 @@ const sendMessage = async (event) => {
         };
 
         setConversations((current) =>
-            current.map((chat) =>
-                chat.id === selectedChatId
-                    ? {
-                        ...chat,
-                        messages: [...chat.messages, formattedMessage]
-                    }
-                    : chat
-            )
+            current.map((chat) => {
+                if (chat.id !== selectedChatId) {
+                    return chat;
+                }
+
+                const alreadyExists = chat.messages.some(
+                    (item) => item.id === formattedMessage.id
+                );
+
+                if (alreadyExists) {
+                    return chat;
+                }
+
+                return {
+                    ...chat,
+                    messages: [...chat.messages, formattedMessage]
+                };
+            })
         );
 
         setMessage("");
@@ -232,6 +241,10 @@ useEffect(() => {
 
             const data = await api(`/messages/${selectedChatId}`);
 
+            await api(`/messages/${selectedChatId}/read`, {
+                method: "PUT"
+            });
+
             console.log("Messages retrieved:", data.messages);
 
             const currentUserId = localStorage.getItem("userId");
@@ -243,7 +256,10 @@ useEffect(() => {
                     item.sender._id === currentUserId
                         ? "me"
                         : "friend",
-                createdAt: item.createdAt
+                createdAt: item.createdAt,
+                isRead: item.sender._id === currentUserId
+                    ? item.isRead
+                    : true
             }));
 
             setConversations((current) =>
@@ -335,6 +351,36 @@ useEffect(() => {
 
     return () => {
         socket.off("message_deleted", handleMessageDeleted);
+    };
+}, []);
+
+// Listen for real-time read receipts
+useEffect(() => {
+    const handleMessagesRead = (data) => {
+        console.log("Messages read event received:", data);
+
+        const currentUserId = localStorage.getItem("userId");
+
+        setConversations((current) =>
+            current.map((chat) =>
+                chat.id === data.conversationId
+                    ? {
+                        ...chat,
+                        messages: chat.messages.map((item) =>
+                            item.sender === "me"
+                                ? { ...item, isRead: true }
+                                : item
+                        )
+                    }
+                    : chat
+            )
+        );
+    };
+
+    socket.on("messages_read", handleMessagesRead);
+
+    return () => {
+        socket.off("messages_read", handleMessagesRead);
     };
 }, []);
 
@@ -456,6 +502,11 @@ useEffect(() => {
                                         <small>
                                             {new Date(item.createdAt).toLocaleString()}
                                         </small>
+                                        {item.sender === "me" && (
+                                            <small>
+                                                {item.isRead ? "✓✓ Read" : "✓ Sent"}
+                                            </small>
+                                        )}
 
                                         {item.sender === "me" && (
                                             <button
