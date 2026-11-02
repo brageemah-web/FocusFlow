@@ -161,17 +161,6 @@ function Friends() {
     }
 };
 
-    // Temporary helper for testing the received-request workflow.
-    const addTestRequest = () => {
-        const testUser = {
-            id: crypto.randomUUID(),
-            name: `Test User ${receivedRequests.length + 1}`,
-        };
-
-        setReceivedRequests((current) => [...current, testUser]);
-        setMessage("A test friend request was added.");
-    };
-
     useEffect(() => {
     const fetchFriendsData = async () => {
         try {
