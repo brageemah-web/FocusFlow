@@ -117,20 +117,32 @@ const sendMessage = async (event) => {
 };
 
     // Delete one of your messages
-    const deleteMessage = (messageId) => {
+    const deleteMessage = async (messageId) => {
+    try {
+        await api(`/messages/${selectedChatId}/${messageId}`, {
+            method: "DELETE"
+        });
+
         setConversations((current) =>
             current.map((chat) =>
                 chat.id === selectedChatId
                     ? {
-                          ...chat,
-                          messages: chat.messages.filter(
-                              (item) => item.id !== messageId
-                          ),
-                      }
+                        ...chat,
+                        messages: chat.messages.filter(
+                            (item) => item.id !== messageId
+                        )
+                    }
                     : chat
             )
         );
-    };
+
+        setStatusMessage("Message deleted successfully.");
+
+    } catch (error) {
+        console.error("Failed to delete message:", error);
+        setStatusMessage(error.message);
+    }
+};
 
     // Delete a conversation and its local messages
     const deleteConversation = (chatId) => {
