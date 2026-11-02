@@ -52,6 +52,11 @@ router.post("/:conversationId", protect, async (req, res) => {
             populatedMessage
         );
 
+        io.to(conversation._id.toString()).emit("new_message_notification", {
+            conversationId: conversation._id.toString(),
+            senderId: req.user.id
+        });
+
         res.status(201).json({
             message: "Message sent successfully",
             data: populatedMessage
