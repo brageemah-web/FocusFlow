@@ -75,12 +75,13 @@ function Pomodoro() {
         <>
             <Navigation />
 
-            <main>
+            <main className = "pomodoroContent">
                 <h1>Pomodoro Timer</h1>
                 <p>Stay focused, take breaks, and make progress.</p>
 
-                <section>
+                <section className = "timerMode">
                     <button
+                        className={mode === "study" ? "modeButton active" : "modeButton"}
                         type="button"
                         onClick={() => changeMode("study")}
                         disabled={mode === "study"}
@@ -89,6 +90,7 @@ function Pomodoro() {
                     </button>
 
                     <button
+                        className={mode === "shortBreak" ? "modeButton active" : "modeButton"}
                         type="button"
                         onClick={() => changeMode("shortBreak")}
                         disabled={mode === "shortBreak"}
@@ -97,6 +99,7 @@ function Pomodoro() {
                     </button>
 
                     <button
+                        className={mode === "longBreak" ? "modeButton active" : "modeButton"}
                         type="button"
                         onClick={() => changeMode("longBreak")}
                         disabled={mode === "longBreak"}
@@ -106,7 +109,7 @@ function Pomodoro() {
                 </section>
 
                 <section>
-                    <h2>
+                    <h2 className="timerHeading">
                         {mode === "study"
                             ? "Time to focus!"
                             : mode === "shortBreak"
@@ -115,31 +118,27 @@ function Pomodoro() {
                     </h2>
 
                     <p
-                        style={{
-                            fontSize: "64px",
-                            fontWeight: "bold",
-                            margin: "20px 0",
-                        }}
+                        className="timerDisplay"
                         role="timer"
                         aria-live="off"
                     >
                         {formatTime(timeLeft)}
                     </p>
 
-                    <button type="button" onClick={startPauseTimer}>
+                    <button type="button"  className="timerButton" onClick={startPauseTimer}>
                         {isRunning ? "Pause" : "Start"}
                     </button>
 
-                    <button type="button" onClick={resetTimer}>
+                    <button type="button" className="resetButton" onClick={resetTimer}>
                         Reset
                     </button>
                 </section>
 
-                <section>
+                <section className="timerSettings">
                     <h2>Timer Settings</h2>
                     <p>Choose a duration between 1 and 180 minutes.</p>
 
-                    <div>
+                    <div className="durationSetting">
                         <label htmlFor="studyDuration">
                             Study duration (minutes)
                         </label>
@@ -190,7 +189,7 @@ function Pomodoro() {
                         />
                     </div>
 
-                    <label>
+                    <label className="soundSetting">
                         <input
                             type="checkbox"
                             checked={soundEnabled}
@@ -202,7 +201,7 @@ function Pomodoro() {
                     </label>
                 </section>
 
-                <section>
+                <section className="sessionProgress">
                     <h2>Session Progress</h2>
                     <p>Completed study sessions: {completedStudySessions}</p>
 
@@ -213,34 +212,34 @@ function Pomodoro() {
                     </p>
                 </section>
 
-                <section>
-    <h2>Session History</h2>
+                <section className="sessionHistory">
+                    <h2>Session History</h2>
 
-    {loading ? (
-        <p>Loading sessions...</p>
-    ) : sessions.length === 0 ? (
-        <p>No completed sessions yet.</p>
-    ) : (
-        sessions.map((session) => (
-    <div key={session._id}>
-        <p>Duration: {session.duration} minutes</p>
-        <p>Type: {session.sessionType}</p>
-        <p>
-            Date: {new Date(session.createdAt).toLocaleDateString()}
-        </p>
+                    {loading ? (
+                        <p>Loading sessions...</p>
+                        ) : sessions.length === 0 ? (
+                            <p>No completed sessions yet.</p>
+                        ) : (
+                            sessions.map((session) => (
+                        <article className="sessionCard" key={session._id}>
+                            <p>Duration: {session.duration} minutes</p>
+                            <p>Type: {session.sessionType}</p>
+                            <p>
+                                Date: {new Date(session.createdAt).toLocaleDateString()}
+                            </p>
 
-        <button
-            type="button"
-            onClick={() => deleteSession(session._id)}
-        >
-            Delete
-        </button>
-    </div>
-))
-    )}
+                            <button className="deleteButton"
+                                type="button"
+                                onClick={() => deleteSession(session._id)}
+                            >
+                                Delete
+                            </button>
+                        </article>
+                        ))
+                    )}
 
-    {message && <p>{message}</p>}
-</section>
+                    {message && <p>{message}</p>}
+                </section>
             </main>
         </>
     );

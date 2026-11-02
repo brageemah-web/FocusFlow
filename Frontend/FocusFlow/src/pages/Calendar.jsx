@@ -136,8 +136,8 @@ function Calendar() {
 
         const eventData = {
             title,
-            data: selectedDate,
-        }
+            date: selectedDate,
+        };
 
         try{
             const updatedEvent = await api(`/calendar/${editingEventId}`,{
@@ -217,13 +217,13 @@ function Calendar() {
         <>
             <Navigation />
 
-            <main>
+            <main className = "calendarContent">
                 <h1>Calendar</h1>
                 <p>
                     Plan your deadlines and keep track of important dates.
                 </p>
 
-                <section>
+                <section className="calendarSection">
                     <div>
                         <button
                             type="button"
@@ -246,7 +246,7 @@ function Calendar() {
                         </button>
                     </div>
 
-                    <div
+                    <div className="calendarGrid"
                         style={{
                             display: "grid",
                             gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
@@ -289,7 +289,8 @@ function Calendar() {
                                     getEventsForDate(date).length > 0;
 
                                 return (
-                                    <button
+                                    <button className={`calendarDay ${selectedDate === date ? "selected" : ""} 
+                                        ${hasEvents ? "hasEvents" : ""}`}
                                         key={date}
                                         type="button"
                                         onClick={() => selectDay(day)}

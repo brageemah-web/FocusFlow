@@ -209,11 +209,11 @@ const completionPercentage = totalTasks === 0
         <>
             <Navigation />
 
-            <main>
+            <main className = "taskContent">
                 <h1>Tasks</h1>
                 <p>Organise your work and keep track of your progress.</p>
 
-                <section>
+                <section className = "taskProgress">
                     <h2>Task Progress</h2>
 
                     <p>
@@ -249,7 +249,7 @@ const completionPercentage = totalTasks === 0
                             : "Add a Task"}
                     </h2>
 
-                    <form
+                    <form className = "taskForm"
                         onSubmit={
                             editingTaskId !== null
                                 ? saveTaskChanges
@@ -324,7 +324,9 @@ const completionPercentage = totalTasks === 0
                         <p>No tasks yet. Add your first task above!</p>
                     ) : (
                         tasks.map((task) => (
-                            <article key={task._id}>
+                            <article key={task._id}
+                            className={`taskCard ${task.completed ? "completed" : ""}`}
+                            >
                                 <label>
                                     <input
                                         type="checkbox"
@@ -361,6 +363,7 @@ const completionPercentage = totalTasks === 0
                                 )}
 
                                 <button type="button"
+                                    className="editButton"
                                     onClick={() => startEditing(task)}>
                                     Edit
                                 </button>
