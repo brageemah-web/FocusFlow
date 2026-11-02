@@ -10,6 +10,8 @@ import Pomodoro from "./pages/Pomodoro";
 import Friends from "./pages/Friends";
 import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
     return (
@@ -25,6 +27,8 @@ function App() {
                 <Route path = "/friends" element = {<Friends/>}/>
                 <Route path = "/chat" element = {<Chat/>}/>
                 <Route path = "/settings" element = {<Settings/>}/>
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Routes>
         </BrowserRouter>
     );

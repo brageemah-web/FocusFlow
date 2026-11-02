@@ -5,6 +5,8 @@ const protect  = require("../middleware/authMiddleware");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const sendEmail = require("../utils/emailService");
 
 //Post (register a new user)
 router.post("/register", async(req,res) => {
@@ -266,6 +268,142 @@ router.put("/change-password", protect, async (req, res) => {
         res.status(500).json({
             message: "Failed to change password",
             error: error.message
+        });
+    }
+});
+
+// Request password reset
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Please provide your email address"
+            });
+        }
+
+        const user = await User.findOne({
+            email: email.trim().toLowerCase()
+        });
+
+        // Use the same response whether the account exists or not.
+        const responseMessage =
+            "If an account exists with this email, a reset link has been sent.";
+
+        if (!user) {
+            return res.status(200).json({
+                message: responseMessage
+            });
+        }
+
+        // Generate a secure random token.
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Hash the token before storing it.
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+        await user.save();
+
+        // Build the reset link.
+        const resetLink =
+            `http://localhost:5173/reset-password/${resetToken}`;
+
+        // Send the email.
+        try {
+            await sendEmail(
+                user.email,
+                "FocusFlow Password Reset",
+                `
+                    <h2>Reset Your FocusFlow Password</h2>
+                    <p>We received a request to reset your password.</p>
+                    <p>Click the link below to create a new password:</p>
+                    <a href="${resetLink}">Reset Password</a>
+                    <p>This link expires in 15 minutes.</p>
+                    <p>If you did not request this, you can ignore this email.</p>
+                `
+            );
+        } catch (emailError) {
+            user.resetPasswordToken = null;
+            user.resetPasswordExpires = null;
+            await user.save();
+
+            throw emailError;
+        }
+
+        res.status(200).json({
+            message: responseMessage
+        });
+
+    } catch (error) {
+        console.error("Forgot password error:", error);
+
+        res.status(500).json({
+            message: "Unable to process password reset request"
+        });
+    }
+});
+
+// Reset password using token
+router.post("/reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword) {
+            return res.status(400).json({
+                message: "Please provide a new password"
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters long"
+            });
+        }
+
+        // Hash the token received from the reset link.
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        // Find user with a valid, unexpired token.
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Password reset link is invalid or has expired"
+            });
+        }
+
+        // Hash and save the new password.
+        user.password = await bcrypt.hash(newPassword, 10);
+
+        // Invalidate the reset token.
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Password reset successfully. You can now log in."
+        });
+
+    } catch (error) {
+        console.error("Reset password error:", error);
+
+        res.status(500).json({
+            message: "Unable to reset password"
         });
     }
 });
