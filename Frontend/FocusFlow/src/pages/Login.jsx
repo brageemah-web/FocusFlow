@@ -44,6 +44,7 @@ function Login(){
 
             // Save the JWT token
             localStorage.setItem("token", data.token);
+            localStorage.setItem("userId", data.user._id);
 
             // Connect Socket.IO using the JWT token
             socket.auth = {

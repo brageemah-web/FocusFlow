@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
 const STORAGE_KEY = "focusflow_chat_conversations";
 
@@ -22,11 +23,12 @@ function Chat() {
     const [conversations, setConversations] = useState(loadConversations);
     const [selectedChatId, setSelectedChatId] = useState(null);
 
-    const [friendName, setFriendName] = useState("");
-    const [friendUsername, setFriendUsername] = useState("");
-
     const [message, setMessage] = useState("");
     const [statusMessage, setStatusMessage] = useState("");
+
+    const [friends, setFriends] = useState([]);
+    const [loadingFriends, setLoadingFriends] = useState(true);
+    const [selectedFriendId, setSelectedFriendId] = useState("");
 
     const selectedChat = conversations.find(
         (chat) => chat.id === selectedChatId
@@ -45,48 +47,54 @@ function Chat() {
     }, [conversations]);
 
     // Create a new conversation
-    const createConversation = (event) => {
-        event.preventDefault();
+    
+const createConversation = async (event) => {
+    event.preventDefault();
 
-        const name = friendName.trim();
-        const username = friendUsername.trim();
+    if (!selectedFriendId) {
+        setStatusMessage("Please select a friend.");
+        return;
+    }
 
-        if (!name || !username) {
-            setStatusMessage("Enter both a name and username.");
-            return;
-        }
+    try {
+        const data = await api(`/conversations/${selectedFriendId}`, {
+            method: "POST"
+        });
 
-        const existingChat = conversations.find(
-            (chat) =>
-                chat.username.toLowerCase() === username.toLowerCase()
+        const conversation = data.conversation;
+
+        const friend = conversation.participants.find(
+            (participant) => participant._id === selectedFriendId
         );
 
-        if (existingChat) {
-            setSelectedChatId(existingChat.id);
-            setStatusMessage("This conversation already exists.");
-            setFriendName("");
-            setFriendUsername("");
-            return;
+        if (!friend) {
+            throw new Error("Could not find the selected friend.");
         }
 
-        const newConversation = {
-            id: crypto.randomUUID(),
-            name,
-            username,
-            messages: [],
-            createdAt: new Date().toISOString(),
+        const newChat = {
+            id: conversation._id,
+            name: friend.name,
+            username: friend.email,
+            messages: []
         };
 
-        setConversations((current) => [
-            ...current,
-            newConversation,
-        ]);
+        setConversations((current) => {
+            const exists = current.some(
+                (chat) => chat.id === newChat.id
+            );
 
-        setSelectedChatId(newConversation.id);
-        setFriendName("");
-        setFriendUsername("");
-        setStatusMessage(`Conversation with ${name} created.`);
-    };
+            return exists ? current : [...current, newChat];
+        });
+
+        setSelectedChatId(conversation._id);
+        setSelectedFriendId("");
+        setStatusMessage(data.message);
+
+    } catch (error) {
+        setStatusMessage(error.message);
+    }
+};
+
 
     // Send a message
     const sendMessage = (event) => {
@@ -146,6 +154,24 @@ function Chat() {
         setStatusMessage("Conversation deleted.");
     };
 
+    useEffect(() => {
+    const fetchFriends = async () => {
+        try {
+            const data = await api("/friends");
+
+            console.log("Friends retrieved:", data.friends);
+            setFriends(data.friends);
+        } catch (error) {
+            console.error("Failed to retrieve friends:", error);
+            setStatusMessage(error.message);
+        } finally {
+            setLoadingFriends(false);
+        }
+    };
+
+    fetchFriends();
+}, []);
+
     return (
         <>
             <Navigation />
@@ -165,50 +191,32 @@ function Chat() {
                 <section>
                     <h2>Start New Conversation</h2>
 
-                    <form onSubmit={createConversation}>
-                        <div>
-                            <label htmlFor="friendName">
-                                Friend's name
-                            </label>
+                    
+                <form onSubmit={createConversation}>
+                    <label htmlFor="friendSelect">
+                        Select a friend
+                    </label>
 
-                            <input
-                                id="friendName"
-                                type="text"
-                                value={friendName}
-                                onChange={(event) =>
-                                    setFriendName(event.target.value)
-                                }
-                                placeholder="Enter a name"
-                                required
-                            />
-                        </div>
+                    <select
+                        id="friendSelect"
+                        value={selectedFriendId}
+                        onChange={(event) => setSelectedFriendId(event.target.value)}
+                        required
+                    >
+                        <option value="">Choose a friend</option>
 
-                        <div>
-                            <label htmlFor="friendUsername">
-                                Friend's username
-                            </label>
+                        {friends.map((friend) => (
+                            <option key={friend._id} value={friend._id}>
+                                {friend.name} ({friend.email})
+                            </option>
+                        ))}
+                    </select>
 
-                            <input
-                                id="friendUsername"
-                                type="text"
-                                value={friendUsername}
-                                onChange={(event) =>
-                                    setFriendUsername(event.target.value)
-                                }
-                                placeholder="e.g. alex123"
-                                required
-                            />
-                        </div>
+                    <button type="submit" disabled={!selectedFriendId}>
+                        Start Conversation
+                    </button>
+                </form>
 
-                        <button type="submit">
-                            Start Conversation
-                        </button>
-                    </form>
-
-                    <p>
-                        For now, you can create local test conversations.
-                        These do not contact real users.
-                    </p>
                 </section>
 
                 <section>
