@@ -43,6 +43,15 @@ router.post("/:conversationId", protect, async (req, res) => {
             "name email"
         );
 
+        // Get Socket.IO instance
+        const io = req.app.get("io");
+
+        // Broadcast message to everyone in the conversation room
+        io.to(conversation._id.toString()).emit(
+            "receive_message",
+            populatedMessage
+        );
+
         res.status(201).json({
             message: "Message sent successfully",
             data: populatedMessage
