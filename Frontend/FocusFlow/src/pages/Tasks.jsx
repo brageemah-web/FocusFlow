@@ -69,7 +69,7 @@ function Tasks() {
         setEditingTaskId(task._id);
         setTaskTitle(task.title || "");
         setTaskDescription(task.description || "");
-        setTaskDueDate(task.dueDate || "");
+        setTaskDueDate(task.dueDate ? task.dueDate.slice(0, 10) : "");
     };
 
     // Save changes to the existing task.
@@ -340,21 +340,12 @@ const completionPercentage = totalTasks === 0
                                         }}
                                     >
                                         {task.title}
-                                        <span
-                                            style={{
-                                                textDecoration: task.completed
-                                                    ? "line-through"
-                                                    : "none",
-                                            }}
-                                        >
-                                            {task.title}
                                         </span>
                                         {isOverdue(task) && (
                                             <span style={{ color: "red", fontWeight: "bold" }}>
                                                 Overdue
                                             </span>
                                         )}
-                                    </span>
                                 </label>
 
                                 {task.description && <p>{task.description}</p>}
