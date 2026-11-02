@@ -1,5 +1,6 @@
 import {useState} from "react";
 import { useNavigate,Link } from "react-router-dom";
+import api from "../api";
 
 function Register() {
     const navigate = useNavigate();
@@ -11,28 +12,43 @@ function Register() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    const handleRegister = (event) => {
-        event.preventDefault();
-        setError("");
- 
-        if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
-            setError("Please complete all fields.");
-            return;
-        }
+    const handleRegister = async (event) => {
+    event.preventDefault();
+    setError("");
 
-        if (password.length < 8) {
-            setError("Password must contain at least 8 characters.");
-            return;
-        }
+    if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
+        setError("Please complete all fields.");
+        return;
+    }
 
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
-            return;
-        }
+    if (password.length < 8) {
+        setError("Password must contain at least 8 characters.");
+        return;
+    }
 
-        // Temporary navigation until backend registration is implemented
+    if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        return;
+    }
+
+    try {
+        const data = await api("/auth/register", {
+            method: "POST",
+            body: JSON.stringify({
+                name: fullName.trim(),
+                email: email.trim(),
+                password
+            })
+        });
+
+        console.log(data.message);
+
         navigate("/");
-    };
+    } catch (error) {
+        console.error("Registration failed:", error);
+        setError(error.message);
+    }
+};
 
     return (
         <div className="loginPage">
