@@ -22,7 +22,17 @@ const PORT = process.env.PORT || 5000;
 const onlineUsers = new Map();
 
 // Middleware
-app.use(cors());
+// Allowed frontend origins
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.CLIENT_URL
+].filter(Boolean);
+
+// Middleware
+app.use(cors({
+    origin: allowedOrigins
+}));
+
 app.use(express.json());
 
 app.use("/api/tasks", taskRoutes);
@@ -45,7 +55,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST"]
     },
     transports: ["websocket", "polling"]
