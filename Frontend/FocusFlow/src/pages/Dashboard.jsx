@@ -1,43 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
-const TASKS_KEY = "focusflow_tasks";
-const NOTES_KEY = "focusflow_notes";
-const POMODORO_KEY = "focusflow_pomodoro";
-const CALENDAR_KEY = "focusflow_calendar_events";
-
-function readStorage(key) {
-    try {
-        const savedData = localStorage.getItem(key);
-        return savedData ? JSON.parse(savedData) : null;
-    } catch (error) {
-        console.error(`Could not load ${key}:`, error);
-        return null;
-    }
-}
 
 function Dashboard() {
-    // Load saved tasks
-    const [tasks] = useState(() => {
-        const savedTasks = readStorage(TASKS_KEY);
-        return Array.isArray(savedTasks) ? savedTasks : [];
-    });
+    const [tasks, setTasks] = useState([]);
+    const [notes, setNotes] = useState([]);
+    const [events, setEvents] = useState([]);
+    const [sessions, setSessions] = useState([]);
 
-    // Load saved notes
-    const [notes] = useState(() => {
-        const savedNotes = readStorage(NOTES_KEY);
-        return Array.isArray(savedNotes) ? savedNotes : [];
-    });
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
 
-    // Load Pomodoro settings and completed sessions
-    const [pomodoro] = useState(() => readStorage(POMODORO_KEY));
+    useEffect(() => {
+    const fetchDashboardData = async () => {
+        try {
+            const [
+                tasksData,
+                notesData,
+                eventsData,
+                sessionsData
+            ] = await Promise.all([
+                api("/tasks"),
+                api("/notes"),
+                api("/calendar"),
+                api("/pomodoro")
+            ]);
 
-    // Load saved calendar events
-    const [events] = useState(() => {
-    const savedEvents = readStorage(CALENDAR_KEY);
-    return Array.isArray(savedEvents) ? savedEvents : [];
-});
+            setTasks(tasksData);
+            setNotes(notesData);
+            setEvents(eventsData);
+            setSessions(sessionsData);
+
+        } catch (error) {
+            console.error("Failed to load dashboard data:", error);
+            setMessage(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchDashboardData();
+}, []);
 
     // Check whether a task is completed
     const isCompleted = (task) =>
@@ -118,21 +123,31 @@ const upcomingDeadlines = [
         .slice(0, 3);
 
     // Estimate focus time from completed study sessions
-    const completedSessions = Number(
-        pomodoro?.completedSessions ?? 0
+    const completedStudySessions = sessions.filter(
+        (session) =>
+            session.sessionType === "study" &&
+            session.completed
     );
 
-    const studyDuration = Number(
-        pomodoro?.durations?.study ?? 25
-    );
+    const completedSessions = completedStudySessions.length;
 
-    const focusMinutes = completedSessions * studyDuration;
+    const focusMinutes = completedStudySessions.reduce(
+        (total, session) => total + session.duration,
+        0
+    );
 
     return (
         <div className="dashboard">
             <Navigation />
 
-            <main className="dashboardContent">
+            {loading ? (
+                <p>Loading dashboard...</p>
+            ) : message ? (
+                <p>{message}</p>
+            ) : (
+                <main className="dashboardContent">
+               
+
                 {/* Header */}
                 <header className="dashboardHeader">
                     <div>
@@ -196,11 +211,19 @@ const upcomingDeadlines = [
                             <p>No incomplete tasks are due today.</p>
                         ) : (
                             <ul>
-                                {todaysTasks.slice(0, 5).map((task) => (
-                                    <li key={task.id}>
-                                        {task.title ||
-                                            task.name ||
-                                            "Untitled task"}
+                                {recentNotes.map((note) => (
+                                    <li key={note._id}>
+                                        <strong>
+                                            {note.title || "Untitled note"}
+                                        </strong>
+
+                                        {note.content && (
+                                            <p>
+                                                {note.content.length > 80
+                                                    ? `${note.content.slice(0, 80)}...`
+                                                    : note.content}
+                                            </p>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
@@ -263,6 +286,7 @@ const upcomingDeadlines = [
                     </div>
                 </section>
             </main>
+            )}
         </div>
     );
 }
