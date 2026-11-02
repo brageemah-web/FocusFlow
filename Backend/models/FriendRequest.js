@@ -25,7 +25,7 @@ const friendRequestSchema = new mongoose.Schema({
 //prevent duplicate requests between the same two users
 friendRequestSchema.index(
     {sender : 1, receiver: 1},
-    {unqiue : true}
+    {unique : true}
 );
 
 const   FriendRequest = mongoose.model("FriendRequest", friendRequestSchema);
