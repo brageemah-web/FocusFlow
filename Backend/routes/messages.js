@@ -124,12 +124,29 @@ router.put("/:conversationId/read", protect, async (req, res) => {
             {
                 $set: { isRead: true }
             }
-        );
+        ); 
+         
+        console.log("Reader ID:", req.user.id);
+        console.log("Messages updated:", result.modifiedCount);
+
+        if (result.modifiedCount > 0) {
+            const io = req.app.get("io");
+
+            io.to(conversation._id.toString()).emit("messages_read", {
+                conversationId: conversation._id.toString(),
+                readerId: req.user.id
+            });
+        }
+
+        
+      
 
         res.status(200).json({
             message: "Messages marked as read",
             updatedCount: result.modifiedCount
         });
+
+        
 
     } catch (error) {
         res.status(500).json({
