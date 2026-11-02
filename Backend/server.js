@@ -70,13 +70,55 @@ io.use((socket, next) => {
     }
 });
 
+
 io.on("connection", (socket) => {
     console.log(`User connected: ${socket.user.id}`);
+
+    // Join a conversation room
+    socket.on("join_conversation", async (conversationId) => {
+        try {
+            const Conversation = require("./models/Conversation");
+
+            const conversation = await Conversation.findById(conversationId);
+
+            if (!conversation) {
+                socket.emit("socket_error", {
+                    message: "Conversation not found."
+                });
+                return;
+            }
+
+            const isParticipant = conversation.participants.some(
+                (participant) => participant.toString() === socket.user.id
+            );
+
+            if (!isParticipant) {
+                socket.emit("socket_error", {
+                    message: "You are not a participant in this conversation."
+                });
+                return;
+            }
+
+            socket.join(conversationId);
+
+            console.log(
+                `User ${socket.user.id} joined conversation ${conversationId}`
+            );
+
+        } catch (error) {
+            console.error("Error joining conversation:", error.message);
+
+            socket.emit("socket_error", {
+                message: "Could not join conversation."
+            });
+        }
+    });
 
     socket.on("disconnect", () => {
         console.log(`User disconnected: ${socket.user.id}`);
     });
 });
+
 
 const startServer = async () => {
     try {
