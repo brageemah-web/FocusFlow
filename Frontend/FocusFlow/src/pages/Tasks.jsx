@@ -180,6 +180,31 @@ function Tasks() {
     }
 };
 
+//show overdue tasks
+const isOverdue = (task) => {
+    if (!task.dueDate || task.completed) {
+        return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dueDate = new Date(task.dueDate);
+    dueDate.setUTCHours(0, 0, 0, 0);
+
+    return dueDate < today;
+};
+
+const completedTasks = tasks.filter(
+    (task) => task.completed
+).length;
+
+const totalTasks = tasks.length;
+
+const completionPercentage = totalTasks === 0
+    ? 0
+    : Math.round((completedTasks / totalTasks) * 100);
+
     return (
         <>
             <Navigation />
@@ -188,6 +213,35 @@ function Tasks() {
                 <h1>Tasks</h1>
                 <p>Organise your work and keep track of your progress.</p>
 
+                <section>
+                    <h2>Task Progress</h2>
+
+                    <p>
+                        {completedTasks} of {totalTasks} tasks completed
+                    </p>
+
+                    <h3>{completionPercentage}%</h3>
+
+                    <div
+                        style={{
+                            width: "100%",
+                            height: "12px",
+                            backgroundColor: "#e0e0e0",
+                            borderRadius: "10px",
+                            overflow: "hidden",
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: `${completionPercentage}%`,
+                                height: "100%",
+                                backgroundColor: "#4caf50",
+                                transition: "width 0.3s ease",
+                            }}
+                        />
+                    </div>
+                </section>
+                
                 <section>
                     <h2>
                         {editingTaskId !== null
@@ -286,6 +340,20 @@ function Tasks() {
                                         }}
                                     >
                                         {task.title}
+                                        <span
+                                            style={{
+                                                textDecoration: task.completed
+                                                    ? "line-through"
+                                                    : "none",
+                                            }}
+                                        >
+                                            {task.title}
+                                        </span>
+                                        {isOverdue(task) && (
+                                            <span style={{ color: "red", fontWeight: "bold" }}>
+                                                Overdue
+                                            </span>
+                                        )}
                                     </span>
                                 </label>
 
