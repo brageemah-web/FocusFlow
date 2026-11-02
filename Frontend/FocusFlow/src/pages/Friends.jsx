@@ -121,13 +121,22 @@ function Friends() {
     }
 };
 
-    const cancelRequest = (requestId) => {
+    const cancelRequest = async (requestId) => {
+    try {
+        await api(`/friends/requests/${requestId}/cancel`, {
+            method: "DELETE"
+        });
+
         setSentRequests((current) =>
             current.filter((request) => request.id !== requestId)
         );
 
         setMessage("Friend request cancelled.");
-    };
+    } catch (error) {
+        console.error("Failed to cancel friend request:", error);
+        setMessage(error.message);
+    }
+};
 
     const removeFriend = (friendId) => {
         setFriends((current) =>
