@@ -1,5 +1,6 @@
 const express =  require("express");
 const router = express.Router();
+const protect  = require("../middleware/authMiddleware");
 
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
@@ -122,6 +123,149 @@ router.post("/login",async(req,res) => {
         res.status(500).json({
             message : "Login Failed",
             error : e.message
+        });
+    }
+});
+
+// Get logged-in user's profile
+router.get("/me", protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            id: user._id,
+            name: user.name,
+            email: user.email
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to retrieve profile",
+            error: error.message
+        });
+    }
+});
+
+// Update logged-in user's profile
+router.put("/me", protect, async (req, res) => {
+    try {
+        const { name, email } = req.body;
+
+        if (!name || !email) {
+            return res.status(400).json({
+                message: "Name and email are required"
+            });
+        }
+
+        const updatedName = name.trim();
+        const updatedEmail = email.trim().toLowerCase();
+
+        if (!updatedName || !updatedEmail) {
+            return res.status(400).json({
+                message: "Name and email cannot be empty"
+            });
+        }
+
+        const existingUser = await User.findOne({
+            email: updatedEmail,
+            _id: { $ne: req.user.id }
+        });
+
+        if (existingUser) {
+            return res.status(409).json({
+                message: "This email is already in use"
+            });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                name: updatedName,
+                email: updatedEmail
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        ).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to update profile",
+            error: error.message
+        });
+    }
+});
+
+// change password
+router.put("/change-password", protect, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                message: "Please provide your current and new password"
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                message: "New password must be at least 6 characters long"
+            });
+        }
+
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        const isMatch = await bcrypt.compare(
+            currentPassword,
+            user.password
+        );
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Current password is incorrect"
+            });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Password changed successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to change password",
+            error: error.message
         });
     }
 });
