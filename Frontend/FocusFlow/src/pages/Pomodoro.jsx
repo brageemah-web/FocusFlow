@@ -1,7 +1,13 @@
+import { useState, useEffect } from "react";
 import Navigation from "../components/Navigation";
 import { usePomodoro } from "../context/usePomodoro.js";
+import api from "../api";
 
 function Pomodoro() {
+    const [sessions, setSessions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState("");
+    
     const {
         durations,
         mode,
@@ -16,6 +22,42 @@ function Pomodoro() {
         startPauseTimer,
     } = usePomodoro();
 
+    useEffect(() => {
+    const fetchSessions = async () => {
+        try {
+            const data = await api("/pomodoro");
+
+            setSessions(data);
+        } catch (error) {
+            console.error("Failed to retrieve sessions:", error);
+            setMessage(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchSessions();
+    }, [completedSessions]);
+
+
+    const deleteSession = async (sessionId) => {
+        try {
+            await api(`/pomodoro/${sessionId}`, {
+                method: "DELETE",
+            });
+
+            setSessions((previousSessions) =>
+                previousSessions.filter(
+                    (session) => session._id !== sessionId
+                )
+            );
+        } catch (error) {
+            console.error("Failed to delete session:", error);
+            setMessage(error.message);
+        }
+    };
+    
+
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -24,6 +66,10 @@ function Pomodoro() {
             remainingSeconds
         ).padStart(2, "0")}`;
     };
+
+    const completedStudySessions = sessions.filter(
+        (session) => session.sessionType === "study" && session.completed
+    ).length;
 
     return (
         <>
@@ -158,14 +204,43 @@ function Pomodoro() {
 
                 <section>
                     <h2>Session Progress</h2>
-                    <p>Completed study sessions: {completedSessions}</p>
+                    <p>Completed study sessions: {completedStudySessions}</p>
 
                     <p>
-                        {completedSessions > 0
+                        {completedStudySessions > 0
                             ? "Great work! Keep it up."
                             : "Complete a study session to track your progress."}
                     </p>
                 </section>
+
+                <section>
+    <h2>Session History</h2>
+
+    {loading ? (
+        <p>Loading sessions...</p>
+    ) : sessions.length === 0 ? (
+        <p>No completed sessions yet.</p>
+    ) : (
+        sessions.map((session) => (
+    <div key={session._id}>
+        <p>Duration: {session.duration} minutes</p>
+        <p>Type: {session.sessionType}</p>
+        <p>
+            Date: {new Date(session.createdAt).toLocaleDateString()}
+        </p>
+
+        <button
+            type="button"
+            onClick={() => deleteSession(session._id)}
+        >
+            Delete
+        </button>
+    </div>
+))
+    )}
+
+    {message && <p>{message}</p>}
+</section>
             </main>
         </>
     );

@@ -15,8 +15,8 @@ const pomodoroSchema = new mongoose.Schema(
         },
         sessionType: {
             type: String,
-            enum: ["Focus", "Break"],
-            default: "Focus"
+            enum: ["study", "shortBreak", "longBreak"],
+            default: "study"
         },
         completed: {
             type: Boolean,
