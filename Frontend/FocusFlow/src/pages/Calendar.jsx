@@ -1,19 +1,13 @@
 
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
-const STORAGE_KEY = "focusflow_calendar_events";
 
 function Calendar() {
-    const [events, setEvents] = useState(() => {
-        try {
-            const savedEvents = localStorage.getItem(STORAGE_KEY);
-            return savedEvents ? JSON.parse(savedEvents) : [];
-        } catch (error) {
-            console.error("Could not load calendar events:", error);
-            return [];
-        }
-    });
+    const [events, setEvents] = useState([]);
+    const [loading, setloading] = useState(true);
+    const [message, setMessage] = useState("");
 
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -30,17 +24,23 @@ function Calendar() {
     const [eventTitle, setEventTitle] = useState("");
     const [editingEventId, setEditingEventId] = useState(null);
 
-    // Save events whenever they change.
     useEffect(() => {
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(events)
-            );
-        } catch (error) {
-            console.error("Could not save calendar events:", error);
-        }
-    }, [events]);
+        const fetchEvents = async() => {
+            try{
+                const data = await api("/calendar");
+                console.log("Events retrieved from backend: ", data);
+                setEvents(data);
+            }
+            catch(error){
+                console.error("Failed to retrieve calendar events: ", error);
+                setMessage(error.message);
+            }
+            finally{
+                setloading(false);
+            }   
+        }; 
+        fetchEvents();
+    }, []);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -64,26 +64,43 @@ function Calendar() {
     };
 
     // Add a new event.
-    const addEvent = (event) => {
+    const addEvent = async (event) => {
         event.preventDefault();
 
         const title = eventTitle.trim();
 
-        if (!title || !selectedDate) return;
+        if (!title || !selectedDate){
+            setMessage("Please enter an event title and date.")
+            return;
+        }
 
-        const newEvent = {
-            id: crypto.randomUUID(),
-            title,
+        const eventData ={
+            title: title,
             date: selectedDate,
-            createdAt: new Date().toISOString(),
         };
 
-        setEvents((currentEvents) => [
-            ...currentEvents,
-            newEvent,
-        ]);
+        console.log("Sending calendar event: ", eventData);
 
-        clearForm();
+        try{
+            const newEvent = await api("/calendar",{
+                method : "POST",
+                body: JSON.stringify(
+                    eventData
+                ),
+            });
+
+            setEvents((currentEvents) => [
+                ...currentEvents,
+                newEvent,
+            ]);
+
+            clearForm();
+            setMessage("Event added successfully.");
+        }
+        catch(error){
+            console.error("Failed to add calendar event: ", error);
+            setMessage(error.message);
+        }
     };
 
     // Load an existing event into the form.
@@ -149,7 +166,10 @@ function Calendar() {
 
     // Get events for a specific date.
     const getEventsForDate = (date) =>
-        events.filter((event) => event.date === date);
+        events.filter(
+            (calendarEvent) => 
+                String(calendarEvent.date).slice(0,10) === date
+        );
 
     // Select a day on the calendar.
     const selectDay = (day) => {
@@ -169,6 +189,8 @@ function Calendar() {
     };
 
     const selectedEvents = getEventsForDate(selectedDate);
+    console.log("Selected Date: ", selectedDate);
+    console.log("Matching events: ", selectedEvents);
 
     return (
         <>
@@ -337,7 +359,10 @@ function Calendar() {
                         )}
                     </form>
 
-                    {selectedEvents.length === 0 ? (
+                    {message && <p rle = "status">{message}</p>}
+                    {loading ? (
+                        <p>Loading events...</p>) :
+                    selectedEvents.length === 0 ? (
                         <p>No events scheduled for this date.</p>
                     ) : (
                         selectedEvents.map((calendarEvent) => (
