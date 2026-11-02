@@ -38,13 +38,17 @@ function Login(){
 
             const data = await response.json();
 
+            console.log("Full login response:", data);
+            console.log("User object:", data.user);
+            console.log("User ID:", data.user?._id);
+
             if (!response.ok) {
                 throw new Error(data.message || "Login failed.");
             }
 
             // Save the JWT token
             localStorage.setItem("token", data.token);
-            localStorage.setItem("userId", data.user._id);
+            localStorage.setItem("userId", data.user.id);
 
             // Connect Socket.IO using the JWT token
             socket.auth = {

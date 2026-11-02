@@ -1,30 +1,17 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
+import socket from "../socket";
 
-const STORAGE_KEY = "focusflow_chat_conversations";
-
-function loadConversations() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-
-        if (!saved) return [];
-
-        const parsed = JSON.parse(saved);
-
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-        console.error("Could not load conversations:", error);
-        return [];
-    }
-}
 
 function Chat() {
-    const [conversations, setConversations] = useState(loadConversations);
+    const [conversations, setConversations] = useState([]);
+    const [loadingConversations, setLoadingConversations] = useState(true);
     const [selectedChatId, setSelectedChatId] = useState(null);
 
     const [message, setMessage] = useState("");
     const [statusMessage, setStatusMessage] = useState("");
+    const [loadingMessages, setLoadingMessages] = useState(false);
 
     const [friends, setFriends] = useState([]);
     const [loadingFriends, setLoadingFriends] = useState(true);
@@ -34,20 +21,7 @@ function Chat() {
         (chat) => chat.id === selectedChatId
     );
 
-    // Save conversations whenever they change
-    useEffect(() => {
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(conversations)
-            );
-        } catch (error) {
-            console.error("Could not save conversations:", error);
-        }
-    }, [conversations]);
-
     // Create a new conversation
-    
 const createConversation = async (event) => {
     event.preventDefault();
 
@@ -97,33 +71,50 @@ const createConversation = async (event) => {
 
 
     // Send a message
-    const sendMessage = (event) => {
-        event.preventDefault();
+// Send a message
+const sendMessage = async (event) => {
+    event.preventDefault();
 
-        const text = message.trim();
+    const text = message.trim();
 
-        if (!text || !selectedChat) return;
+    if (!text || !selectedChat) return;
 
-        const newMessage = {
-            id: crypto.randomUUID(),
-            text,
+    try {
+        const data = await api(`/messages/${selectedChatId}`, {
+            method: "POST",
+            body: JSON.stringify({ text })
+        });
+
+        console.log("Message sent:", data.message);
+
+        const savedMessage = data.data;
+
+        const formattedMessage = {
+            id: savedMessage._id,
+            text: savedMessage.text,
             sender: "me",
-            createdAt: new Date().toISOString(),
+            createdAt: savedMessage.createdAt
         };
 
         setConversations((current) =>
             current.map((chat) =>
                 chat.id === selectedChatId
                     ? {
-                          ...chat,
-                          messages: [...chat.messages, newMessage],
-                      }
+                        ...chat,
+                        messages: [...chat.messages, formattedMessage]
+                    }
                     : chat
             )
         );
 
         setMessage("");
-    };
+        setStatusMessage("");
+
+    } catch (error) {
+        console.error("Failed to send message:", error);
+        setStatusMessage(error.message);
+    }
+};
 
     // Delete one of your messages
     const deleteMessage = (messageId) => {
@@ -171,6 +162,158 @@ const createConversation = async (event) => {
 
     fetchFriends();
 }, []);
+
+useEffect(() => {
+    const fetchConversations = async () => {
+        try {
+            const data = await api("/conversations");
+
+            console.log("Conversations response:", data);
+
+            const currentUserId = localStorage.getItem("userId");
+
+            console.log("Current user ID:", currentUserId);
+
+            const formattedConversations = data.conversations.map(
+                (conversation) => {
+                    console.log(
+                        "Conversation participants:",
+                        conversation.participants
+                    );
+
+                    const friend = conversation.participants.find(
+                        (participant) =>
+                            participant._id.toString() !== currentUserId
+                    );
+
+                    return {
+                        id: conversation._id,
+                        name: friend?.name || "Unknown User",
+                        username: friend?.email || "",
+                        messages: []
+                    };
+                }
+            );
+
+            console.log("Formatted conversations:", formattedConversations);
+
+            setConversations(formattedConversations);
+
+        } catch (error) {
+            console.error("Failed to retrieve conversations:", error);
+            setStatusMessage(error.message);
+        } finally {
+            setLoadingConversations(false);
+        }
+    };
+
+    fetchConversations();
+}, []);
+
+// Fetch messages when a conversation is selected
+useEffect(() => {
+    if (!selectedChatId) return;
+
+    const fetchMessages = async () => {
+        try {
+            setLoadingMessages(true);
+
+            const data = await api(`/messages/${selectedChatId}`);
+
+            console.log("Messages retrieved:", data.messages);
+
+            const currentUserId = localStorage.getItem("userId");
+
+            const formattedMessages = data.messages.map((item) => ({
+                id: item._id,
+                text: item.text,
+                sender:
+                    item.sender._id === currentUserId
+                        ? "me"
+                        : "friend",
+                createdAt: item.createdAt
+            }));
+
+            setConversations((current) =>
+                current.map((chat) =>
+                    chat.id === selectedChatId
+                        ? { ...chat, messages: formattedMessages }
+                        : chat
+                )
+            );
+
+        } catch (error) {
+            console.error("Failed to retrieve messages:", error);
+            setStatusMessage(error.message);
+        } finally {
+            setLoadingMessages(false);
+        }
+    };
+
+    fetchMessages();
+
+}, [selectedChatId]);
+
+// Listen for incoming real-time messages
+useEffect(() => {
+    const handleReceiveMessage = (newMessage) => {
+        console.log("Real-time message received:", newMessage);
+        const currentUserId = localStorage.getItem("userId");
+
+        const formattedMessage = {
+            id: newMessage._id,
+            text: newMessage.text,
+            sender:
+                newMessage.sender._id === currentUserId
+                    ? "me"
+                    : "friend",
+            createdAt: newMessage.createdAt
+        };
+
+        setConversations((current) =>
+            current.map((chat) => {
+                if (chat.id !== newMessage.conversation) {
+                    return chat;
+                }
+
+                // Prevent duplicate messages
+                const alreadyExists = chat.messages.some(
+                    (item) => item.id === formattedMessage.id
+                );
+
+                if (alreadyExists) {
+                    return chat;
+                }
+
+                return {
+                    ...chat,
+                    messages: [...chat.messages, formattedMessage]
+                };
+            })
+        );
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
+
+    return () => {
+        socket.off("receive_message", handleReceiveMessage);
+    };
+}, []);
+
+// Join the selected conversation room
+useEffect(() => {
+    if (!selectedChatId) return;
+
+    if (!socket.connected) {
+        socket.connect();
+    }
+
+    socket.emit("join_conversation", selectedChatId);
+
+    return () => {
+        socket.emit("leave_conversation", selectedChatId);
+    };
+}, [selectedChatId]);
 
     return (
         <>
@@ -222,32 +365,19 @@ const createConversation = async (event) => {
                 <section>
                     <h2>Conversations ({conversations.length})</h2>
 
-                    {conversations.length === 0 ? (
-                        <p>
-                            No conversations yet. Create one above to get
-                            started.
-                        </p>
+                    {loadingConversations ? (
+                        <p>Loading conversations...</p>
                     ) : (
                         conversations.map((chat) => (
                             <article key={chat.id}>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedChatId(chat.id);
-                                        setStatusMessage("");
-                                    }}
-                                    disabled={selectedChatId === chat.id}
-                                >
-                                    {chat.name} (@{chat.username})
-                                </button>
+                                <p>{chat.name}</p>
+                                <p>{chat.username}</p>
 
                                 <button
                                     type="button"
-                                    onClick={() =>
-                                        deleteConversation(chat.id)
-                                    }
+                                    onClick={() => setSelectedChatId(chat.id)}
                                 >
-                                    Delete Conversation
+                                    Open Chat
                                 </button>
                             </article>
                         ))
@@ -268,10 +398,10 @@ const createConversation = async (event) => {
                                 minHeight: "250px",
                             }}
                         >
-                            {selectedChat.messages.length === 0 ? (
-                                <p>
-                                    No messages yet. Start the conversation!
-                                </p>
+                            {loadingMessages ? (
+                                <p>Loading messages...</p>
+                            ) : selectedChat.messages.length === 0 ? (
+                                <p>No messages yet. Start the conversation!</p>
                             ) : (
                                 selectedChat.messages.map((item) => (
                                     <article key={item.id}>
@@ -286,17 +416,13 @@ const createConversation = async (event) => {
                                         <p>{item.text}</p>
 
                                         <small>
-                                            {new Date(
-                                                item.createdAt
-                                            ).toLocaleString()}
+                                            {new Date(item.createdAt).toLocaleString()}
                                         </small>
 
                                         {item.sender === "me" && (
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    deleteMessage(item.id)
-                                                }
+                                                onClick={() => deleteMessage(item.id)}
                                             >
                                                 Delete Message
                                             </button>

@@ -49,6 +49,8 @@ const io = new Server(server, {
     transports: ["websocket", "polling"]
 });
 
+app.set("io", io);
+
 // Socket.IO JWT authentication
 io.use((socket, next) => {
     try {
@@ -113,6 +115,10 @@ io.on("connection", (socket) => {
                 message: "Could not join conversation."
             });
         }
+    });
+
+    socket.on("leave_conversation", (conversationId) => {
+        socket.leave(conversationId);
     });
 
     socket.on("disconnect", () => {
