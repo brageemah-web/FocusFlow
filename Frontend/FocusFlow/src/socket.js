@@ -4,7 +4,8 @@ const socket = io("http://localhost:5000", {
     autoConnect: false,
     auth: {
         token: ""
-    }
+    },
+    transports: ["websocket", "polling"]
 });
 
 export default socket;
