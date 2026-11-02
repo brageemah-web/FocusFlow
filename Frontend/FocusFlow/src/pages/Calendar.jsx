@@ -105,28 +105,27 @@ function Calendar() {
 
     // Load an existing event into the form.
     const startEditing = (event) => {
-        setEditingEventId(event.id);
-        setEventTitle(event.title || "");
+    setEditingEventId(event._id);
+    setEventTitle(event.title || "");
 
-        // Select the event's date so the form is associated with it.
-        setSelectedDate(event.date);
+    const eventDate = String(event.date).slice(0, 10);
+    setSelectedDate(eventDate);
 
-        // Display the month containing the event.
-        const eventDate = new Date(`${event.date}T12:00:00`);
+    const parsedDate = new Date(`${eventDate}T12:00:00`);
 
-        if (!Number.isNaN(eventDate.getTime())) {
-            setCurrentDate(
-                new Date(
-                    eventDate.getFullYear(),
-                    eventDate.getMonth(),
-                    1
-                )
-            );
-        }
-    };
+    if (!Number.isNaN(parsedDate.getTime())) {
+        setCurrentDate(
+            new Date(
+                parsedDate.getFullYear(),
+                parsedDate.getMonth(),
+                1
+            )
+        );
+    }
+};
 
     // Save changes to an existing event.
-    const saveEventChanges = (event) => {
+    const saveEventChanges = async (event) => {
         event.preventDefault();
 
         const title = eventTitle.trim();
@@ -135,33 +134,55 @@ function Calendar() {
             return;
         }
 
+        const eventData = {
+            title,
+            data: selectedDate,
+        }
+
+        try{
+            const updatedEvent = await api(`/calendar/${editingEventId}`,{
+                method: "PUT",
+                body: JSON.stringify(eventData),
+            })
+
         setEvents((currentEvents) =>
             currentEvents.map((calendarEvent) =>
-                calendarEvent.id === editingEventId
-                    ? {
-                          ...calendarEvent,
-                          title,
-                          date: selectedDate,
-                          updatedAt: new Date().toISOString(),
-                      }
+                calendarEvent._id === editingEventId
+                    ? updatedEvent
                     : calendarEvent
             )
         );
 
         clearForm();
+        setMessage("Event updated successfully.")
+        }
+        catch(error){
+            console.error("Failed to update calendar event: ", error);
+            setMessage(error.message);
+        }
     };
 
     // Delete an event.
-    const deleteEvent = (eventId) => {
+    const deleteEvent = async (eventId) => {
+        try{
+            await api(`/calendar/${eventId}`, {
+                method: "DELETE",
+            });
         setEvents((currentEvents) =>
             currentEvents.filter(
-                (calendarEvent) => calendarEvent.id !== eventId
+                (calendarEvent) => calendarEvent._id !== eventId
             )
         );
 
         if (editingEventId === eventId) {
             clearForm();
         }
+
+        setMessage("Event deleted successfully");
+    }
+    catch(error){
+        console.error("Failed to delete calendar event: ", error);
+    }
     };
 
     // Get events for a specific date.
@@ -359,14 +380,14 @@ function Calendar() {
                         )}
                     </form>
 
-                    {message && <p rle = "status">{message}</p>}
+                    {message && <p role = "status">{message}</p>}
                     {loading ? (
                         <p>Loading events...</p>) :
                     selectedEvents.length === 0 ? (
                         <p>No events scheduled for this date.</p>
                     ) : (
                         selectedEvents.map((calendarEvent) => (
-                            <article key={calendarEvent.id}>
+                            <article key={calendarEvent._id}>
                                 <p>{calendarEvent.title}</p>
 
                                 <button
@@ -381,7 +402,7 @@ function Calendar() {
                                 <button
                                     type="button"
                                     onClick={() =>
-                                        deleteEvent(calendarEvent.id)
+                                        deleteEvent(calendarEvent._id)
                                     }
                                 >
                                     Delete
