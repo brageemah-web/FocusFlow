@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Conversation = require("../models/Conversation");
+const Message = require("../models/Message");
 const FriendRequest = require("../models/FriendRequest");
 const protect = require("../middleware/authMiddleware");
 
@@ -68,18 +69,33 @@ router.post("/:userId", protect, async (req, res) => {
     }
 });
 
-// Get e9rtrieve all conversations for the logged-in user)
+// Get retrieve all conversations for the logged-in user)
 router.get("/", protect, async (req, res) => {
     try {
         const conversations = await Conversation.find({
             participants: req.user.id
         })
-        .populate("participants", "name email")
-        .sort({ updatedAt: -1 });
+            .populate("participants", "name email")
+            .sort({ updatedAt: -1 });
+
+        const conversationsWithUnreadCount = await Promise.all(
+            conversations.map(async (conversation) => {
+                const unreadCount = await Message.countDocuments({
+                    conversation: conversation._id,
+                    sender: { $ne: req.user.id },
+                    isRead: false
+                });
+
+                return {
+                    ...conversation.toObject(),
+                    unreadCount
+                };
+            })
+        );
 
         res.status(200).json({
             count: conversations.length,
-            conversations
+            conversations: conversationsWithUnreadCount
         });
 
     } catch (error) {
