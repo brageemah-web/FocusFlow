@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { PomodoroContext } from "./PomodoroContext.js";
+import api from "../api";
 
 const STORAGE_KEY = "focusflow_pomodoro";
 
@@ -158,10 +159,37 @@ export function PomodoroProvider({ children }) {
                             setCompletedSessions(
                                 (sessions) => sessions + 1
                             );
+
+                            const saveSession = async () => {
+                                try {
+                                    const savedSession = await api("/pomodoro", {
+                                        method: "POST",
+                                        body: JSON.stringify({
+                                            duration: durations.study,
+                                            breakDuration: durations.shortBreak,
+                                            sessionType: "study",
+                                            completed: true
+                                        })
+                                    });
+
+                                    console.log(
+                                        "Pomodoro session saved:",
+                                        savedSession
+                                    );
+
+                                } catch (error) {
+                                    console.error(
+                                        "Failed to save Pomodoro session:",
+                                        error
+                                    );
+                                }
+                            };
+
+                            saveSession();
                         }
 
-                        playSoundRef.current?.();
-                    }
+    playSoundRef.current?.();
+}
 
                     return 0;
                 }
@@ -171,12 +199,13 @@ export function PomodoroProvider({ children }) {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [isRunning, mode]);
+    }, [isRunning, mode, durations]);
 
 
     const changeMode = (newMode) => {
         if (!Object.hasOwn(durations, newMode)) return;
 
+        completionHandledRef.current = false;
         setIsRunning(false);
         setMode(newMode);
         setTimeLeft(durations[newMode] * 60);
@@ -205,12 +234,14 @@ export function PomodoroProvider({ children }) {
     };
 
     const resetTimer = () => {
+        completionHandledRef.current = false;
         setIsRunning(false);
         setTimeLeft(durations[mode] * 60);
     };
 
     const startPauseTimer = () => {
         if (timeLeft === 0) {
+            completionHandledRef.current = false;
             setTimeLeft(durations[mode] * 60);
             return;
         }
