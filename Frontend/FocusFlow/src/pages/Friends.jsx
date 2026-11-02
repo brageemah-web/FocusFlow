@@ -138,13 +138,28 @@ function Friends() {
     }
 };
 
-    const removeFriend = (friendId) => {
+    const removeFriend = async (friendId) => {
+    const confirmRemoval = window.confirm(
+        "Are you sure you want to remove this friend?"
+    );
+
+    if (!confirmRemoval) return;
+
+    try {
+        await api(`/friends/remove/${friendId}`, {
+            method: "DELETE"
+        });
+
         setFriends((current) =>
-            current.filter((friend) => friend.id !== friendId)
+            current.filter((friend) => friend._id !== friendId)
         );
 
-        setMessage("Friend removed.");
-    };
+        setMessage("Friend removed successfully.");
+    } catch (error) {
+        console.error("Failed to remove friend:", error);
+        setMessage(error.message);
+    }
+};
 
     // Temporary helper for testing the received-request workflow.
     const addTestRequest = () => {
@@ -260,6 +275,11 @@ function Friends() {
                         friends.map((friend) => (
                             <div key={friend._id}>
                                 <span>{friend.name}</span>
+
+                                <button type="button"
+                                    onClick={() => removeFriend(friend._id)}>
+                                    Remove
+                                </button>
                             </div>
                         ))
                     )}
