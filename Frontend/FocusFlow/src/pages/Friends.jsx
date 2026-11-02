@@ -1,68 +1,20 @@
 
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
+import api from "../api";
 
-const STORAGE_KEY = "focusflow_friends";
-
-function loadFriendsData() {
-    try {
-        const savedData = localStorage.getItem(STORAGE_KEY);
-
-        if (savedData) {
-            const parsed = JSON.parse(savedData);
-
-            return {
-                friends: Array.isArray(parsed.friends)
-                    ? parsed.friends
-                    : [],
-                sentRequests: Array.isArray(parsed.sentRequests)
-                    ? parsed.sentRequests
-                    : [],
-                receivedRequests: Array.isArray(parsed.receivedRequests)
-                    ? parsed.receivedRequests
-                    : [],
-            };
-        }
-    } catch (error) {
-        console.error("Could not load friends data:", error);
-    }
-
-    return {
-        friends: [],
-        sentRequests: [],
-        receivedRequests: [],
-    };
-}
 
 function Friends() {
-    const [initialData] = useState(loadFriendsData);
-
-    const [friends, setFriends] = useState(initialData.friends);
+    const [friends, setFriends] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    const [sentRequests, setSentRequests] = useState(
-        initialData.sentRequests
-    );
-    const [receivedRequests, setReceivedRequests] = useState(
-        initialData.receivedRequests
-    );
-    const [message, setMessage] = useState("");
 
-    // Save friends and requests whenever they change
-    useEffect(() => {
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify({
-                    friends,
-                    sentRequests,
-                    receivedRequests,
-                })
-            );
-        } catch (error) {
-            console.error("Could not save friends data:", error);
-        }
-    }, [friends, sentRequests, receivedRequests]);
+    const [sentRequests, setSentRequests] = useState([]);
+    const [receivedRequests, setReceivedRequests] = useState([]);
+
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(true);
+
 
     // User search requires the backend.
     const searchUsers = (event) => {
@@ -147,6 +99,47 @@ function Friends() {
         setMessage("A test friend request was added.");
     };
 
+    useEffect(() => {
+    const fetchFriendsData = async () => {
+        try {
+            const [friendsData, sentData, receivedData] =
+                await Promise.all([
+                    api("/friends"),
+                    api("/friends/requests/sent"),
+                    api("/friends/requests/received")
+                ]);
+
+            setFriends(friendsData.friends);
+
+            setSentRequests(
+                sentData.map((request) => ({
+                    id: request._id,
+                    userId: request.receiver._id,
+                    name: request.receiver.name,
+                    email: request.receiver.email
+                }))
+            );
+
+            setReceivedRequests(
+                receivedData.map((request) => ({
+                    id: request._id,
+                    userId: request.sender._id,
+                    name: request.sender.name,
+                    email: request.sender.email
+                }))
+            );
+
+        } catch (error) {
+            console.error("Failed to load friends data:", error);
+            setMessage(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    fetchFriendsData();
+}, []);
+
     return (
         <>
             <Navigation />
@@ -164,7 +157,7 @@ function Friends() {
                 )}
 
                 <section>
-                    <h2>Find Friends</h2>
+                    <h2>Find Friends </h2>
 
                     <form onSubmit={searchUsers}>
                         <label htmlFor="searchUsers">
@@ -201,18 +194,14 @@ function Friends() {
                 <section>
                     <h2>My Friends ({friends.length})</h2>
 
-                    {friends.length === 0 ? (
+                    {loading ? (
+                        <p>Loading friends...</p>
+                    ) : friends.length === 0 ? (
                         <p>You haven't added any friends yet.</p>
                     ) : (
                         friends.map((friend) => (
-                            <div key={friend.id}>
+                            <div key={friend._id}>
                                 <span>{friend.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => removeFriend(friend.id)}
-                                >
-                                    Remove
-                                </button>
                             </div>
                         ))
                     )}
@@ -243,10 +232,7 @@ function Friends() {
                         Received Requests ({receivedRequests.length})
                     </h2>
 
-                    <button type="button" onClick={addTestRequest}>
-                        Add Test Request
-                    </button>
-
+                 
                     {receivedRequests.length === 0 ? (
                         <p>You have no incoming friend requests.</p>
                     ) : (
