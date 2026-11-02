@@ -277,5 +277,47 @@ router.delete("/requests/:requestId/cancel", protect, async (req, res) => {
 }
 });
 
+// Delete (remove an accepted friend)
+router.delete("/remove/:userId", protect, async (req, res) => {
+    try {
+        const friendId = req.params.userId;
+        const currentUserId = req.user.id;
+
+        if (currentUserId === friendId) {
+            return res.status(400).json({
+                message: "You cannot remove yourself."
+            });
+        }
+
+        const friendship = await FriendRequest.findOne({
+            status: "accept",
+            $or: [
+                { sender: currentUserId, receiver: friendId },
+                { sender: friendId, receiver: currentUserId }
+            ]
+        });
+
+        if (!friendship) {
+            return res.status(404).json({
+                message: "Friendship not found."
+            });
+        }
+
+        await FriendRequest.findByIdAndDelete(friendship._id);
+
+        res.status(200).json({
+            message: "Friend removed successfully."
+        });
+
+    } catch (error) {
+        console.error("Remove friend error:", error);
+
+        res.status(500).json({
+            message: "Failed to remove friend.",
+            error: error.message
+        });
+    }
+});
+
 
 module.exports = router;
