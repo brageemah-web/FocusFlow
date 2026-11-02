@@ -247,5 +247,35 @@ router.get("/", protect, async(req,res)=>{
     }
 });
 
+// Delete (cancel a sent friend request)
+router.delete("/requests/:requestId/cancel", protect, async (req, res) => {
+    try {
+        const request = await FriendRequest.findOne({
+            _id: req.params.requestId,
+            sender: req.user.id,
+            status: "pending"
+        });
+
+        if (!request) {
+            return res.status(404).json({
+                message: "Pending friend request not found."
+            });
+        }
+
+        await FriendRequest.findByIdAndDelete(request._id);
+
+        res.json({
+            message: "Friend request cancelled."
+        });
+
+    } catch (error) {
+    console.error("Cancel request error:", error);
+
+    res.status(500).json({
+        message: error.message
+    });
+}
+});
+
 
 module.exports = router;
