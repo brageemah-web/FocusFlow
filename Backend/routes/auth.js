@@ -1,12 +1,21 @@
 const express =  require("express");
 const router = express.Router();
 const protect  = require("../middleware/authMiddleware");
-
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/emailService");
+
+
+const Task = require("../models/Task");
+const Note = require("../models/Note");
+const CalendarEvent = require("../models/CalendarEvent");
+const Pomodoro = require("../models/Pomodoro");
+const FriendRequest = require("../models/FriendRequest");
+const Conversation = require("../models/Conversation");
+const Message = require("../models/Message");
 
 //Post (register a new user)
 router.post("/register", async(req,res) => {
@@ -393,6 +402,163 @@ router.post("/reset-password/:token", async (req, res) => {
         res.status(500).json({
             message: "Unable to reset password"
         });
+    }
+});
+
+// Delete logged-in user's account
+router.delete("/me", protect, async (req, res) => {
+    let session;
+
+    try {
+        session = await mongoose.startSession();
+
+        const { password } = req.body;
+
+        // Check that the password was provided
+        if (!password) {
+            return res.status(400).json({
+                message: "Please provide your current password"
+            });
+        }
+
+        // Find the logged-in user
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        // Verify the current password
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Incorrect password"
+            });
+        }
+
+        // Delete the account and associated data together
+        await session.withTransaction(async () => {
+
+            const userId = user._id;
+
+            // Delete personal data
+            await Task.deleteMany(
+                { user: userId },
+                { session }
+            );
+
+            await Note.deleteMany(
+                { user: userId },
+                { session }
+            );
+
+            await CalendarEvent.deleteMany(
+                { user: userId },
+                { session }
+            );
+
+            await Pomodoro.deleteMany(
+                { user: userId },
+                { session }
+            );
+
+            // Delete incoming and outgoing friend requests
+            await FriendRequest.deleteMany(
+                {
+                    $or: [
+                        { sender: userId },
+                        { receiver: userId }
+                    ]
+                },
+                { session }
+            );
+
+            // Find conversations involving this user
+            const conversations = await Conversation.find({
+                participants: userId
+            })
+                .select("_id")
+                .session(session);
+
+            const conversationIds = conversations.map(
+                conversation => conversation._id
+            );
+
+            // Delete messages sent by this user
+            await Message.deleteMany(
+                { sender: userId },
+                { session }
+            );
+
+            // Remove the user from conversations
+            await Conversation.updateMany(
+                { _id: { $in: conversationIds } },
+                {
+                    $pull: {
+                        participants: userId
+                    }
+                },
+                { session }
+            );
+
+            // Find conversations with no remaining participants
+            const emptyConversations = await Conversation.find({
+                _id: { $in: conversationIds },
+                participants: { $size: 0 }
+            })
+                .select("_id")
+                .session(session);
+
+            const emptyConversationIds = emptyConversations.map(
+                conversation => conversation._id
+            );
+
+            // Remove messages belonging to empty conversations
+            if (emptyConversationIds.length > 0) {
+                await Message.deleteMany(
+                    {
+                        conversation: {
+                            $in: emptyConversationIds
+                        }
+                    },
+                    { session }
+                );
+
+                await Conversation.deleteMany(
+                    {
+                        _id: {
+                            $in: emptyConversationIds
+                        }
+                    },
+                    { session }
+                );
+            }
+
+            // Finally, delete the user account
+            await User.findByIdAndDelete(userId).session(session);
+        });
+
+        res.status(200).json({
+            message: "Account deleted successfully"
+        });
+
+    } catch (error) {
+        console.error("Account deletion error:", error);
+
+        res.status(500).json({
+            message: "Failed to delete account. Please try again."
+        });
+
+    } finally {
+        if (session) {
+            await session.endSession();
+        }
     }
 });
 
