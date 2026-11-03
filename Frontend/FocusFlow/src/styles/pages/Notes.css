@@ -1,0 +1,180 @@
+
+/* Notes page */
+.notesContent {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    margin-left: 250px;
+    padding: 35px;
+}
+
+.notesContent > h1 {
+    font-size: 30px;
+}
+
+.notesContent > p {
+    color: var(--muted);
+    margin-top: -20px;
+}
+
+/* Notes sections */
+.noteFormSection,
+.notesListSection {
+    padding: 25px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.noteFormSection h2,
+.notesListSection h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+/* Note form */
+.noteForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.noteForm > div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.noteForm label,
+.notesListSection label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.noteForm textarea {
+    resize: vertical;
+    min-height: 130px;
+}
+
+/* Form buttons */
+.noteFormActions {
+    display: flex;
+    gap: 10px;
+}
+
+.saveButton {
+    min-width: 120px;
+    font-weight: 600;
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+.cancelButton {
+    min-width: 120px;
+}
+
+/* Note cards */
+.noteCard {
+    padding: 20px;
+    background-color: var(--task-card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.notesCardList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.changeButton {
+    background-color: #EDF1E5;
+    color: #536747;
+}
+
+/* Search */
+.notesSearch {
+    margin: 10px 0 20px;
+}
+
+/* Note cards */
+.noteCard {
+    padding: 20px;
+    margin-bottom: 15px;
+    background-color: #FCFDF9;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.noteCard h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.noteCard > p {
+    color: var(--muted);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    margin-bottom: 12px;
+}
+
+.noteCard small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* Note actions */
+.noteActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.noteMessage {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.editButton,
+.cancelButton {
+    background-color: var(--btn-soft-bg);
+    color: var(--btn-soft-text);
+    font-weight: 600;
+}
+
+.editButton:hover,
+.cancelButton:hover {
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+.deleteButton {
+    background-color: #F8EEEE;
+    color: var(--danger);
+}
+
+.deleteButton:hover {
+    background-color: var(--btn-danger-bg-hover);
+}
+
+.deleteButton {
+    background-color: #F8EEEE;
+    color: var(--danger);
+}
+
+/* Responsive layout */
+@media (max-width: 750px) {
+    .notesContent {
+        padding: 25px 18px;
+    }
+
+    .noteFormSection,
+    .notesListSection {
+        padding: 18px;
+    }
+}
+

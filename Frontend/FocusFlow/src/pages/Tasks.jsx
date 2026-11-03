@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
-
+import "../styles/pages/Tasks.css";
 
 
 function Tasks() {
@@ -35,6 +35,15 @@ function Tasks() {
     const [editingTaskId, setEditingTaskId] = useState(null);
 
 
+    // Clear the form and exit editing mode.
+    const clearForm = () => {
+        setTaskTitle("");
+        setTaskDescription("");
+        setTaskDueDate("");
+        setEditingTaskId(null);
+    };
+
+    
     // Add a new task.
     const addTask = async (event) => {
     event.preventDefault();
@@ -111,14 +120,7 @@ function Tasks() {
     }
 };
 
-    // Clear the form and exit editing mode.
-    const clearForm = () => {
-        setTaskTitle("");
-        setTaskDescription("");
-        setTaskDueDate("");
-        setEditingTaskId(null);
-    };
-
+    
     // Mark a task as completed or incomplete.
     const toggleTask = async (taskId) => {
     const task = tasks.find((task) => task._id === taskId);
@@ -216,7 +218,7 @@ const completionPercentage = totalTasks === 0
         <>
             <Navigation />
 
-            <main className = "taskContent">
+            <main className = "tasksContent">
                 <h1>Tasks</h1>
                 <p>Organise your work and keep track of your progress.</p>
 
@@ -231,17 +233,15 @@ const completionPercentage = totalTasks === 0
 
 
                     <div
-                        style={{
-                            width: "100%",
-                            height: "12px",
-                            backgroundColor: "#e0e0e0",
-                            borderRadius: "10px",
-                            overflow: "hidden",
-                        }}
+                        className="taskProgressTrack"
+                        role="progressbar"
+                        aria-valuenow={completionPercentage}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
                     >
-                    <div
-                        className="taskProgressFill"
-                        style={{ width: `${completionPercentage}%` }}
+                        <div
+                            className="taskProgressFill"
+                            style={{ width: `${completionPercentage}%` }}
                         />
                     </div>
                 </section>
@@ -319,7 +319,6 @@ const completionPercentage = totalTasks === 0
                         </div>
                     </form>
                 </section>
-
                 <section className = "taskListSection">
                     <h2>My Tasks ({tasks.length})</h2>
 

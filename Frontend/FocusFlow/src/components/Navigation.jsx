@@ -1,20 +1,7 @@
-import {NavLink, useNavigate} from "react-router-dom";
-import socket from "../socket";
+import {NavLink} from "react-router-dom";
+import "../styles/components/Navigation.css"
 
 function Navigation(){
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        // Disconnect the user's Socket.IO connection
-        socket.disconnect();
-
-        // Remove authentication details
-        localStorage.removeItem("token");
-        localStorage.removeItem("userId");
-
-        // Redirect to Login
-        navigate("/");
-    };
 
     return(
         <aside className = "sideBar">
@@ -29,11 +16,6 @@ function Navigation(){
                 <NavLink to = "/chat">Chat</NavLink>
                 <NavLink to = "/settings">Settings</NavLink>
             </nav>
-            <div className="sideBarBottom">
-                <button onClick={handleLogout}>
-                    Log Out
-                </button>
-            </div>
         </aside>
     );
 }

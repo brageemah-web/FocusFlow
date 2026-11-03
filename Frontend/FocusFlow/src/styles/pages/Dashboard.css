@@ -1,0 +1,232 @@
+/* ==============================
+   DASHBOARD
+================================= */
+
+.dashboardContent {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+
+    width: calc(100% - 250px);
+    min-height: 100vh;
+
+    margin-left: 250px;
+    padding: 35px;
+}
+
+/* Header */
+.dashboardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboardHeader h1 {
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.dashboardHeader p {
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+/* Welcome card */
+.welcomeCard {
+    padding: 28px 32px;
+    border-radius: 16px;
+    background: linear-gradient(120deg, #C0D09D, #E8EDB9);
+    box-shadow: var(--shadow);
+}
+
+.welcomeCard h2 {
+    font-size: 23px;
+    margin-bottom: 8px;
+}
+
+.welcomeCard p {
+    color: #4F5B43;
+    max-width: 600px;
+}
+
+:root[data-theme="dark"] .welcomeCard {
+    background: linear-gradient(120deg, #46553D, #2B3229);
+}
+
+:root[data-theme="dark"] .welcomeCard p {
+    color: var(--muted);
+}
+
+/* Summary cards */
+.summaryCards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.summaryCard {
+    padding: 22px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.summaryCard h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.summaryCard .summaryNumber {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--success);
+    margin: 12px 0 4px;
+}
+
+.summaryCard p:last-child {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Dashboard panels */
+.dashboardSections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.dashboardPanel {
+    padding: 24px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.dashboardPanel h2 {
+    display: inline-block;
+    font-size: 19px;
+    margin-bottom: 18px;
+}
+
+.dashboardPanel > a:first-of-type {
+    float: right;
+    color: var(--success);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dashboardPanel ul {
+    list-style: none;
+    margin: 10px 0 18px;
+}
+
+.dashboardPanel li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.dashboardPanel li:last-child {
+    border-bottom: none;
+}
+
+.dashboardPanel li strong {
+    font-size: 14px;
+}
+
+.dashboardPanel li p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.dashboardPanel > p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 15px 0;
+}
+
+.panelButton {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background-color: var(--secondary);
+    color: var(--text);
+    font-weight: 600;
+    transition: filter 0.2s ease;
+}
+
+.panelButton:hover {
+    filter: brightness(1.1);
+}
+
+/* Quick access */
+.dashboardQuickAccess {
+    padding: 24px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.dashboardQuickAccess h2 {
+    font-size: 19px;
+    margin-bottom: 18px;
+}
+
+.dashboardQuickAccess > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.dashboardQuickAccess a {
+    padding: 18px;
+    text-align: center;
+    border-radius: 10px;
+    background-color: var(--btn-soft-bg);
+    color: var(--btn-soft-text);
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.dashboardQuickAccess a:hover {
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+/* Responsive layout (must stay at the bottom) */
+@media (max-width: 1100px) {
+    .summaryCards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 750px) {
+    .dashboardContent {
+        padding: 25px 18px;
+    }
+
+    .dashboardSections,
+    .dashboardQuickAccess > div {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .summaryCards {
+        grid-template-columns: 1fr;
+    }
+
+    .welcomeCard {
+        padding: 22px;
+    }
+
+    .dashboardHeader h1 {
+        font-size: 25px;
+    }
+}

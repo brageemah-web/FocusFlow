@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
 import socket from "../socket";
-
+import "../styles/pages/Chat.css";
 
 function Chat() {
     const [conversations, setConversations] = useState([]);
@@ -561,6 +561,7 @@ useEffect(() => {
                     ) : (
                         conversations.map((chat) => (
                           <article className="conversationCard" key={chat.id}>
+                            <div className="conversationInfo">
                                 <p className="conversationName">
                                     {chat.name}
 
@@ -577,6 +578,7 @@ useEffect(() => {
 
                                 <p className="conversationUsername">{chat.username}</p>
 
+                            </div>
                                 <button className="openChatButton"
                                     type="button"
                                     onClick={() => setSelectedChatId(chat.id)}
@@ -591,7 +593,7 @@ useEffect(() => {
                 {selectedChat && (
                     <section className="activeChatSection">
                         <h2 className="activeChatHeading">Chat with {selectedChat.name}</h2>
-                        <p>@{getUsername(selectedChat.username)}</p>
+                        <p className="activeChatUsername">@{getUsername(selectedChat.username)}</p>
 
                         <div
                             className="messagesContainer"

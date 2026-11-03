@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "../components/Navigation";
 import api from "../api";
-
+import "../styles/pages/Dashboard.css";
 
 function Dashboard() {
     const [tasks, setTasks] = useState([]);
@@ -138,14 +138,13 @@ const upcomingDeadlines = [
     return (
         <div className="dashboard">
             <Navigation />
-
+            <main className="dashboardContent">
             {loading ? (
                 <p>Loading dashboard...</p>
             ) : message ? (
                 <p>{message}</p>
             ) : (
-                <main className="dashboardContent">
-               
+                <>
 
                 {/* Header */}
                 <header className="dashboardHeader">
@@ -187,7 +186,7 @@ const upcomingDeadlines = [
                         <p className="summaryNumber">
                             {upcomingDeadlines.length}
                         </p>
-                        <p>Incomplete tasks with due dates</p>
+                        <p>Tasks and events coming ups</p>
                     </div>
 
                     <div className="summaryCard">
@@ -226,7 +225,7 @@ const upcomingDeadlines = [
                         )}
 
                         <Link to="/tasks">
-                            <button type="button">+ Add Task</button>
+                            + Add Task
                         </Link>
                     </div>
 
@@ -260,7 +259,7 @@ const upcomingDeadlines = [
                         )}
 
                         <Link to="/notes">
-                            <button type="button">+ Create Note</button>
+                            + Create Note
                         </Link>
                     </div>
                 </section>
@@ -275,8 +274,9 @@ const upcomingDeadlines = [
                         <Link to="/calendar">Calendar</Link>
                     </div>
                 </section>
+            </>
+            )} 
             </main>
-            )}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import Navigation from "../components/Navigation";
 import api from "../api";
 import {useNavigate} from "react-router-dom";
 import socket from "../socket";
+import "../styles/pages/Settings.css";
 
 function Settings() {
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -236,12 +237,6 @@ function Settings() {
 
                             <button type="submit">Save Profile</button>
                         </form>
-                    )}
-
-                    {message && (
-                        <p className="settingsMessage" role="status">
-                            {message}
-                        </p>
                     )}
                 </section>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navigation from "../components/Navigation";
 import { usePomodoro } from "../context/usePomodoro.js";
 import api from "../api";
+import "../styles/pages/Pomodoro.css";
 
 function Pomodoro() {
     const [sessions, setSessions] = useState([]);
