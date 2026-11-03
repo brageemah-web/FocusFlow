@@ -7,6 +7,9 @@ function Pomodoro() {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
+    const studyOptions = [15, 25, 30, 45, 60];
+    const shortBreakOptions = [5, 10];
+    const longBreakOptions = [15, 20];
     
     const {
         durations,
@@ -39,7 +42,27 @@ function Pomodoro() {
     fetchSessions();
     }, [completedSessions]);
 
-
+    const renderDurationOptions = (type, options) => {
+        return (
+            <div className="durationOptions">
+                {options.map((minutes) => (
+                    <button
+                        key={minutes}
+                        type="button"
+                        className={
+                            durations[type] === minutes
+                                ? "durationButton active"
+                                : "durationButton"
+                        }
+                        disabled={isRunning}
+                        onClick={() => changeDuration(type, minutes)}
+                    >
+                        {minutes} min
+                    </button>
+                ))}
+            </div>
+        );
+    };
     const deleteSession = async (sessionId) => {
         try {
             await api(`/pomodoro/${sessionId}`, {
@@ -136,57 +159,24 @@ function Pomodoro() {
 
                 <section className="timerSettings">
                     <h2>Timer Settings</h2>
-                    <p>Choose a duration between 1 and 180 minutes.</p>
+                    <p>Choose your preferred session durations.</p>
 
                     <div className="durationSetting">
-                        <label htmlFor="studyDuration">
-                            Study duration (minutes)
-                        </label>
-                        <input
-                            id="studyDuration"
-                            type="number"
-                            min="1"
-                            max="180"
-                            value={durations.study}
-                            disabled={isRunning}
-                            onChange={(e) =>
-                                changeDuration("study", e.target.value)
-                            }
-                        />
+                        <h3>Study Duration</h3>
+
+                        {renderDurationOptions("study", studyOptions)}
                     </div>
 
-                    <div>
-                        <label htmlFor="shortBreakDuration">
-                            Short break (minutes)
-                        </label>
-                        <input
-                            id="shortBreakDuration"
-                            type="number"
-                            min="1"
-                            max="180"
-                            value={durations.shortBreak}
-                            disabled={isRunning}
-                            onChange={(e) =>
-                                changeDuration("shortBreak", e.target.value)
-                            }
-                        />
+                    <div className="durationSetting">
+                        <h3>Short Break</h3>
+
+                        {renderDurationOptions("shortBreak", shortBreakOptions)}
                     </div>
 
-                    <div>
-                        <label htmlFor="longBreakDuration">
-                            Long break (minutes)
-                        </label>
-                        <input
-                            id="longBreakDuration"
-                            type="number"
-                            min="1"
-                            max="180"
-                            value={durations.longBreak}
-                            disabled={isRunning}
-                            onChange={(e) =>
-                                changeDuration("longBreak", e.target.value)
-                            }
-                        />
+                    <div className="durationSetting">
+                        <h3>Long Break</h3>
+
+                        {renderDurationOptions("longBreak", longBreakOptions)}
                     </div>
 
                     <label className="soundSetting">
