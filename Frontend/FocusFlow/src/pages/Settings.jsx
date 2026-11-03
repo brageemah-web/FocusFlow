@@ -267,7 +267,7 @@ function Settings() {
 
                 {message && <p role="status">{message}</p>}
 
-                <section className="settingsSection notificationSection">
+               {/* <section className="settingsSection notificationSection">
                     <h2>Notifications</h2>
 
                     <label className="notificationOption">
@@ -306,7 +306,7 @@ function Settings() {
                         />
                         Friend request notifications
                     </label>
-                </section>
+                </section>}*/}
             </main>
         </>
     );
