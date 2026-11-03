@@ -22,6 +22,11 @@
     --danger: #D66B6B;
 
     --shadow: 0 4px 15px rgba(48, 56, 45, 0.06);
+
+    --password-weak: #D66B6B;
+    --password-fair: #D9A441;
+    --password-good: #A8BE8F;
+    --password-strong: #6F9665;
 }
 
 /* Dark Theme */
@@ -40,6 +45,11 @@
     --danger: #E58A8A;
 
     --shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+
+    --password-weak: #E58A8A;
+    --password-fair: #E6BB68;
+    --password-good: #A8BE8F;
+    --password-strong: #91B581;
 }
 
 body,
@@ -2257,3 +2267,48 @@ main {
         margin-top: 8px;
     }
 }
+
+/* ==============================
+   Password Checker
+================================= */
+/* Password Strength */
+
+.passwordStrength {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+}
+
+.strengthHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.strength-label {
+    color: var(--text);
+}
+
+.strength-percentage {
+    color: var(--muted);
+}
+
+.strengthSegments {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.segment {
+    flex: 1;
+    height: 6px;
+    background-color: var(--border);
+    border-radius: 10px;
+    transition: background-color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
