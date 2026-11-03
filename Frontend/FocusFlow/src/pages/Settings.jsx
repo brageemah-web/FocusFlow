@@ -6,6 +6,12 @@ import {useNavigate} from "react-router-dom";
 import socket from "../socket";
 
 function Settings() {
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [deletePassword, setDeletePassword] = useState("");
+    const [deleting, setDeleting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState("");
+
+
     const [profile, setProfile] = useState({
         name: "",
         email: ""
@@ -147,6 +153,44 @@ function Settings() {
 
         // Redirect to Login
         navigate("/");
+    };
+
+    const handleDeleteAccount = async (event) => {
+        event.preventDefault();
+
+        if (!deletePassword) {
+            setDeleteMessage("Please enter your current password.");
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            setDeleteMessage("");
+
+            await api("/auth/me", {
+                method: "DELETE",
+                body: JSON.stringify({
+                    password: deletePassword
+                })
+            });
+
+            // Disconnect Socket.IO
+            socket.disconnect();
+
+            // Remove authentication details
+            localStorage.removeItem("token");
+            localStorage.removeItem("userId");
+            localStorage.removeItem("appearance");
+
+            // Redirect to Login
+            navigate("/");
+
+        } catch (error) {
+            console.error("Account deletion failed:", error);
+            setDeleteMessage(error.message);
+        } finally {
+            setDeleting(false);
+        }
     };
 
     return (
@@ -319,6 +363,75 @@ function Settings() {
                         Log Out
                     </button>
                 </div>
+
+                <section className="settingsSection dangerZone">
+                    <h2>Danger Zone</h2>
+
+                    <p>
+                        Deleting your account is permanent. Your account and
+                        associated data may be permanently deleted.
+                    </p>
+
+                    {!showDeleteConfirmation ? (
+                        <button
+                            type="button"
+                            className="deleteAccountButton"
+                            onClick={() => setShowDeleteConfirmation(true)}
+                        >
+                            Delete Account
+                        </button>
+                    ) : (
+                        <div className="deleteConfirmation">
+                            <h3>Are you sure?</h3>
+
+                            <p>
+                                This action cannot be undone. Enter your current
+                                password to confirm account deletion.
+                            </p>
+
+                            <form onSubmit={handleDeleteAccount}>
+                                <input
+                                    type="password"
+                                    placeholder="Current Password"
+                                    value={deletePassword}
+                                    onChange={(event) =>
+                                        setDeletePassword(event.target.value)
+                                    }
+                                    required
+                                />
+
+                                <div className="deleteActions">
+                                    <button
+                                        type="submit"
+                                        className="confirmDeleteButton"
+                                        disabled={deleting}
+                                    >
+                                        {deleting ? "Deleting..." : "Permanently Delete"}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="cancelDeleteButton"
+                                        onClick={() => {
+                                            setShowDeleteConfirmation(false);
+                                            setDeletePassword("");
+                                            setDeleteMessage("");
+                                        }}
+                                        disabled={deleting}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+
+                            {deleteMessage && (
+                                <p role="alert" className="deleteError">
+                                    {deleteMessage}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </section>
             </main>
         </>
     );
