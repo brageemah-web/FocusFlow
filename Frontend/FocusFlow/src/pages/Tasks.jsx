@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
-
+import "../styles/pages/Tasks.css";
 
 
 function Tasks() {
@@ -35,6 +35,15 @@ function Tasks() {
     const [editingTaskId, setEditingTaskId] = useState(null);
 
 
+    // Clear the form and exit editing mode.
+    const clearForm = () => {
+        setTaskTitle("");
+        setTaskDescription("");
+        setTaskDueDate("");
+        setEditingTaskId(null);
+    };
+
+    
     // Add a new task.
     const addTask = async (event) => {
     event.preventDefault();
@@ -111,14 +120,7 @@ function Tasks() {
     }
 };
 
-    // Clear the form and exit editing mode.
-    const clearForm = () => {
-        setTaskTitle("");
-        setTaskDescription("");
-        setTaskDueDate("");
-        setEditingTaskId(null);
-    };
-
+    
     // Mark a task as completed or incomplete.
     const toggleTask = async (taskId) => {
     const task = tasks.find((task) => task._id === taskId);
@@ -205,11 +207,18 @@ const completionPercentage = totalTasks === 0
     ? 0
     : Math.round((completedTasks / totalTasks) * 100);
 
+
+    useEffect(() => {
+        if (totalTasks > 0 && completedTasks === totalTasks) {
+            alert("You completed all your tasks 🥳");
+        }
+    }, [completedTasks, totalTasks]);
+
     return (
         <>
             <Navigation />
 
-            <main className = "taskContent">
+            <main className = "tasksContent">
                 <h1>Tasks</h1>
                 <p>Organise your work and keep track of your progress.</p>
 
@@ -222,27 +231,22 @@ const completionPercentage = totalTasks === 0
 
                     <h3>{completionPercentage}%</h3>
 
+
                     <div
-                        style={{
-                            width: "100%",
-                            height: "12px",
-                            backgroundColor: "#e0e0e0",
-                            borderRadius: "10px",
-                            overflow: "hidden",
-                        }}
+                        className="taskProgressTrack"
+                        role="progressbar"
+                        aria-valuenow={completionPercentage}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
                     >
                         <div
-                            style={{
-                                width: `${completionPercentage}%`,
-                                height: "100%",
-                                backgroundColor: "#4caf50",
-                                transition: "width 0.3s ease",
-                            }}
+                            className="taskProgressFill"
+                            style={{ width: `${completionPercentage}%` }}
                         />
                     </div>
                 </section>
                 
-                <section>
+                <section className = "taskFormSection">
                     <h2>
                         {editingTaskId !== null
                             ? "Edit Task"
@@ -296,27 +300,29 @@ const completionPercentage = totalTasks === 0
                             />
                         </div>
 
-                        <button type="submit">
-                            {editingTaskId !== null
-                                ? "Save Changes"
-                                : "Add Task"}
-                        </button>
+                        <div className = "taskFormActions">
 
-                        {editingTaskId !== null && (
-                            <button
-                                type="button"
-                                onClick={clearForm}
-                            >
-                                Cancel
+                            <button type="submit" className = "primaryButton">
+                                {editingTaskId !== null
+                                    ? "Save Changes"
+                                    : "Add Task"}
                             </button>
-                        )}
+
+                            {editingTaskId !== null && (
+                                <button className = "primaryButton"
+                                    type="button"
+                                    onClick={clearForm}
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </section>
-
-                <section>
+                <section className = "taskListSection">
                     <h2>My Tasks ({tasks.length})</h2>
 
-                    {message && <p role="status">{message}</p>}
+                    {message && <p className = "taskMessage" role="status">{message}</p>}
 
                     {loading ? (
                         <p>Loading tasks...</p>
@@ -334,17 +340,11 @@ const completionPercentage = totalTasks === 0
                                         onChange={() => toggleTask(task._id)}
                                     />
 
-                                    <span
-                                        style={{
-                                            textDecoration: task.completed
-                                                ? "line-through"
-                                                : "none",
-                                        }}
-                                    >
+                                    <span className = "taskTitleText">
                                         {task.title}
                                         </span>
                                         {isOverdue(task) && (
-                                            <span style={{ color: "red", fontWeight: "bold" }}>
+                                            <span className = "overdueLabel">
                                                 Overdue
                                             </span>
                                         )}
@@ -362,16 +362,18 @@ const completionPercentage = totalTasks === 0
                                     </p>
                                 )}
 
+                                <div className = "taskActions">
                                 <button type="button"
                                     className="editButton"
                                     onClick={() => startEditing(task)}>
                                     Edit
                                 </button>
 
-                                <button type="button"
+                                <button type="button" className = "deleteButton"
                                     onClick={() => deleteTask(task._id)}>
                                     Delete
                                 </button>
+                                </div>
                             </article>
                         ))
                     )}

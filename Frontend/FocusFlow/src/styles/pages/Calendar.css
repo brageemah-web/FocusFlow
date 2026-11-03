@@ -1,0 +1,302 @@
+
+/* ==============================
+   CALENDAR PAGE
+================================= */
+
+.calendarContent {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+
+    width: calc(100% - 250px);
+    min-height: 100vh;
+
+    margin-left: 250px;
+    padding: 35px;
+}
+
+.calendarContent > h1 {
+    font-size: 30px;
+}
+
+.calendarContent > p {
+    color: var(--muted);
+    margin-top: -20px;
+}
+
+/* Calendar section */
+.calendarSection,
+.calendarEventsSection {
+    padding: 25px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+/* Month navigation */
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.calendarHeader h2 {
+    font-size: 21px;
+    text-align: center;
+}
+
+.calendarHeader button {
+    background-color: #EDF1E5;
+    color: #536747;
+    font-weight: 600;
+}
+
+.calendarHeader button:hover{
+    background-color: var(--primary);
+    color: var(--text);
+}
+
+/* Calendar grid */
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.calendarGrid > div {
+    text-align: center;
+    padding: 8px 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* Calendar day buttons */
+.calendarDay {
+    min-height: 75px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background-color: #FCFDF9;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.calendarDay:hover {
+    background-color: #F1F4E9;
+}
+
+.calendarDay.selected {
+    background-color: var(--accent);
+    border: 2px solid #82996D;
+    color: #536747;
+    font-weight: 700;
+}
+
+.calendarDay.hasEvents {
+    color: #71875E;
+}
+
+/* Events section */
+.calendarEventsSection h2 {
+    font-size: 19px;
+    margin-bottom: 20px;
+}
+
+/* Event form */
+.calendarForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.calendarForm > div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.calendarForm label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.calendarForm button {
+    align-self: flex-start; 
+    padding-bottom: 5px;
+}
+
+/* Event cards */
+.calendarEventCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding: 16px;
+    margin-top: 12px;
+
+    background-color: #FCFDF9;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.calendarEventCard p {
+    flex: 1; 
+    min-width: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.calendarEventCard button {
+    padding: 8px;
+    font-size: 13px;
+}
+
+.calendarEventActions { 
+    display: flex; 
+    gap: 8px; 
+    flex-shrink: 0;
+}
+
+.calendarEventCard .editButton { 
+    background-color: #EDF1E5; 
+    color: #536747; 
+}
+
+.calendarEventCard .editButton:hover { background-color: var(--secondary); 
+    color: var(--text); 
+}
+
+.calendarEventCard .deleteButton { background-color: #F8EEEE; 
+    color: var(--danger); 
+}
+
+.calendarEventCard .deleteButton:hover { 
+    background-color: var(--danger); 
+    color: #fff; 
+}
+
+/* Responsive calendar */
+@media (max-width: 750px) {
+    .calendarContent {
+        padding: 25px 18px;
+    }
+
+    .calendarSection,
+    .calendarEventsSection {
+        padding: 18px;
+    }
+
+    .calendarGrid {
+        gap: 5px !important;
+    }
+
+    .calendarDay {
+        min-height: 50px !important;
+        padding: 5px !important;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendarContent > h1 {
+        font-size: 25px;
+    }
+
+    .calendarHeader h2 {
+        font-size: 17px;
+    }
+
+    .calendarHeader button {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .calendarEventCard {
+        align-items: flex-start;
+    }
+}
+
+
+/* ==============================
+   CALENDAR DARK THEME
+================================= */
+
+:root[data-theme="dark"] .calendarSection,
+:root[data-theme="dark"] .calendarEventsSection {
+    background-color: var(--surface);
+    border-color: var(--border);
+}
+
+:root[data-theme="dark"] .calendarHeader button {
+    background-color: #46553D;
+    color: #EDF1E8;
+}
+
+:root[data-theme="dark"] .calendarHeader button:hover {
+    background-color: var(--accent);
+    color: var(--secondary);
+}
+
+:root[data-theme="dark"] .calendarGrid > div {
+    color: var(--muted);
+}
+
+:root[data-theme="dark"] .calendarDay {
+    background-color: #343D31;
+    border-color: var(--border) !important;
+    color: var(--text);
+}
+
+:root[data-theme="dark"] .calendarDay:hover {
+    background-color: #46553D;
+}
+
+:root[data-theme="dark"] .calendarDay.selected {
+    background-color: #596D4D;
+    border-color: #A8BE8F !important;
+    color: #FFFFFF;
+}
+
+:root[data-theme="dark"] .calendarDay.hasEvents {
+    color: #C0D09D;
+}
+
+:root[data-theme="dark"] .calendarEventCard {
+    background-color: #343D31;
+    border-color: var(--border);
+}
+
+:root[data-theme="dark"] .calendarEventCard p {
+    color: var(--text);
+}
+
+:root[data-theme="dark"] .calendarEventCard button:first-of-type {
+    background-color: #46553D;
+    color: #EDF1E8;
+}
+
+:root[data-theme="dark"] .calendarEventCard button:last-of-type {
+    background-color: #593838;
+    color: #F2AAAA;
+}
+
+:root[data-theme="dark"] .calendarForm label {
+    color: var(--text);
+}
+
+:root[data-theme="dark"] .calendarForm input,
+:root[data-theme="dark"] .calendarForm textarea,
+:root[data-theme="dark"] .calendarForm select {
+    background-color: #343D31;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+:root[data-theme="dark"] .calendarContent > p {
+    color: var(--muted);
+}

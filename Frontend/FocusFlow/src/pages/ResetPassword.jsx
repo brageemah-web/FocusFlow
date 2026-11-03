@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import api from "../api";
+import "../styles/pages/ResetPassword.css";
 
 function ResetPassword() {
     const { token } = useParams();
@@ -56,7 +57,7 @@ function ResetPassword() {
 
                 <p>Enter your new password below.</p>
 
-                <form onSubmit={handleSubmit}>
+                <form className="resetPasswordFields" onSubmit={handleSubmit}>
                     <label htmlFor="newPassword">New Password</label>
 
                     <input
@@ -81,14 +82,20 @@ function ResetPassword() {
 
                     {error && <p className="formError">{error}</p>}
 
-                    {message && <p role="status">{message}</p>}
+                    {message && (
+                        <p className="resetPasswordMessage" role="status">
+                            {message}
+                        </p>
+                    )}
 
                     <button type="submit" disabled={loading}>
                         {loading ? "Resetting..." : "Reset Password"}
                     </button>
                 </form>
 
-                <Link to="/">Back to Login</Link>
+                <Link className="resetPasswordLink" to="/">
+                    Back to Login
+                </Link>
             </div>
         </div>
     );

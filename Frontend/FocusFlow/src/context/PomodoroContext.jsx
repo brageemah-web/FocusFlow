@@ -211,24 +211,19 @@ export function PomodoroProvider({ children }) {
         setTimeLeft(durations[newMode] * 60);
     };
 
-    const changeDuration = (durationMode, value) => {
+    const changeDuration = (type, value) => {
         const minutes = Number(value);
 
-        if (
-            !Object.hasOwn(durations, durationMode) ||
-            !Number.isInteger(minutes) ||
-            minutes < 1 ||
-            minutes > 180
-        ) {
+        if (!Number.isInteger(minutes) || minutes < 1 || minutes > 180) {
             return;
         }
 
-        setDurations((current) => ({
-            ...current,
-            [durationMode]: minutes,
+        setDurations((previous) => ({
+            ...previous,
+            [type]: minutes
         }));
 
-        if (mode === durationMode && !isRunning) {
+        if (mode === type) {
             setTimeLeft(minutes * 60);
         }
     };

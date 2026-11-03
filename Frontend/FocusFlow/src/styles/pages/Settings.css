@@ -1,0 +1,139 @@
+/* Settings page */
+.settingsContent {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    margin-left: 250px;
+    padding: 35px;
+}
+
+.settingsContent > h1 {
+    font-size: 30px;
+}
+
+.settingsContent > p {
+    color: var(--muted);
+    margin-top: -20px;
+}
+
+/* Settings cards */
+.settingsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 25px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.settingsSection h2 {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+/* Forms */
+.settingsForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 500px;
+}
+
+.settingsForm > div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.settingsForm label,
+.appearanceSection label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settingsForm input {
+    width: 100%;
+}
+
+.settingsForm button {
+    align-self: flex-start;
+    min-width: 130px;
+    font-weight: 600;
+}
+
+/* Appearance */
+.themeSelect {
+    max-width: 300px;
+}
+
+.appearanceSection p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* Password */
+.passwordInput {
+    max-width: 500px;
+}
+
+.updatePasswordButton {
+    background-color: var(--secondary);
+}
+
+/* Notifications */
+.notificationSection {
+    gap: 15px;
+}
+
+.notificationOption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.notificationOption input {
+    width: 17px;
+    height: 17px;
+    accent-color: #82996D;
+    cursor: pointer;
+}
+
+/* Status message */
+.settingsMessage {
+    padding: 12px 15px;
+    background-color: #EDF1E5;
+    color: #536747;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Responsive styling */
+@media (max-width: 750px) {
+    .settingsContent {
+        padding: 25px 18px;
+    }
+
+    .settingsSection {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .settingsContent > h1 {
+        font-size: 25px;
+    }
+
+    .settingsSection h2 {
+        font-size: 18px;
+    }
+
+    .settingsForm button {
+        width: 100%;
+    }
+}

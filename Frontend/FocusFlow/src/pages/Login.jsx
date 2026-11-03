@@ -2,6 +2,7 @@ import {useState} from "react";
 import { useNavigate, Link } from "react-router-dom";
 import socket from "../socket";
 import api from "../api";
+import "../styles/pages/Login.css";
 
 function Login(){
     const navigate = useNavigate();
@@ -65,23 +66,23 @@ function Login(){
                 </p>
 
                 <form onSubmit={handleLogin}>
-                    <label htmlFor = "email" >Email</label><br/>
+                    <label htmlFor = "email" >Email</label>
                     <input type = "email" 
                     id = "email" 
                     placeholder = "johnDoe@gmail.com" 
                     value = {email} 
                     onChange = {(event) => setEmail(event.target.value)} 
                     required
-                    /><br/>
+                    />
 
-                    <label htmlFor = "password" >Password</label><br/>
+                    <label htmlFor = "password" >Password</label>
                     <input type={showPassword ? "text" : "password"} 
                     id = "password" 
                     placeholder = "Enter your password" 
                     value = {password} 
                     onChange = {(event) => setPassword(event.target.value)} 
                     required
-                    /><br/>
+                    />
 
                     <label className = "showPassword">
                         <input type = "checkbox" 
@@ -95,14 +96,15 @@ function Login(){
                         <Link to="/forgot-password">Forgot Password?</Link>
                     </div>
 
-                    {error && <p className = "formError">{error}</p>}
+                    {error && <p className="formError" role="alert">{error}</p>}
                     
                     <button type="submit" disabled={loading}>
                         {loading ? "Logging in..." : "Login"}
                     </button>
                 </form>
-                <p className = "registerPrompt">Not a member? 
-                    <Link to = "/register">Register</Link>
+                <p className="registerPrompt">
+                    Not a member?{" "}
+                    <Link to="/register">Register</Link>
                 </p>
             </div>
         </div>

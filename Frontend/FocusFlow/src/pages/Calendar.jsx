@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
-
+import "../styles/pages/Calendar.css";
 
 function Calendar() {
     const [events, setEvents] = useState([]);
@@ -224,7 +224,7 @@ function Calendar() {
                 </p>
 
                 <section className="calendarSection">
-                    <div>
+                    <div  className="calendarHeader">
                         <button
                             type="button"
                             onClick={() => changeMonth(-1)}
@@ -318,10 +318,10 @@ function Calendar() {
                     </div>
                 </section>
 
-                <section>
+                <section className = "calendarEventsSection">
                     <h2>Events for {selectedDate}</h2>
 
-                    <form
+                    <form className = "calendarForm"
                         onSubmit={
                             editingEventId !== null
                                 ? saveEventChanges
@@ -388,10 +388,10 @@ function Calendar() {
                         <p>No events scheduled for this date.</p>
                     ) : (
                         selectedEvents.map((calendarEvent) => (
-                            <article key={calendarEvent._id}>
+                            <article key={calendarEvent._id} className = "calendarEventCard">
                                 <p>{calendarEvent.title}</p>
 
-                                <button
+                                <button className = "editButton"
                                     type="button"
                                     onClick={() =>
                                         startEditing(calendarEvent)
@@ -400,7 +400,7 @@ function Calendar() {
                                     Edit
                                 </button>
 
-                                <button
+                                <button className = "deleteButton"
                                     type="button"
                                     onClick={() =>
                                         deleteEvent(calendarEvent._id)

@@ -1,0 +1,268 @@
+/* ==============================
+   TASKS PAGE
+================================= */
+
+.tasksContent {
+    
+
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+
+    width: calc(100% - 250px);
+    min-height: 100vh;
+
+    margin-left: 250px;
+    padding: 35px;
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+:root[data-theme="dark"] .tasksContent {
+    
+}
+
+.tasksContent > h1 {
+    font-size: 30px;
+}
+
+.tasksContent > p {
+    color: var(--muted);
+    margin-top: -20px;
+}
+
+/* Sections */
+.taskProgress,
+.taskFormSection,
+.taskListSection {
+    padding: 25px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.taskProgress h2,
+.taskFormSection h2,
+.taskListSection h2 {
+    font-size: 19px;
+    margin-bottom: 15px;
+}
+
+.taskProgress h3 {
+    font-size: 28px;
+    color: #71875E;
+    margin: 8px 0 12px;
+}
+
+/* Progress bar */
+.taskProgressTrack {
+    width: 100%;
+    height: 12px;
+    background-color: var(--task-track);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.taskProgressFill {
+    height: 100%;
+    background-color: #7a9362;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+/* Task form */
+.taskForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.taskForm > div {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.taskForm > .taskFormActions {
+    flex-direction: row;
+    gap: 10px;
+}
+
+.taskForm label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.taskForm input,
+.taskForm textarea {
+    background-color: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+:root[data-theme="dark"] .taskForm input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 100px var(--input-bg) inset;
+    -webkit-text-fill-color: var(--text);
+}
+
+.taskForm textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.taskForm input::placeholder,
+.taskForm textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.8;
+}
+
+.taskForm input:focus,
+.taskForm textarea:focus {
+    outline: 2px solid var(--secondary);
+    outline-offset: 1px;
+    border-color: var(--secondary);
+}
+
+:root[data-theme="dark"] .taskForm input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 100px var(--task-input-bg) inset;
+    -webkit-text-fill-color: var(--text);
+}
+
+:root[data-theme="dark"] .taskForm label {
+    color: var(--text);
+}
+
+:root[data-theme="dark"] .taskForm input,
+:root[data-theme="dark"] .taskForm textarea,
+:root[data-theme="dark"] .taskForm select {
+    background-color: #343D31;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+/* Buttons */
+.primaryButton {
+    background-color: var(--secondary);
+    color: var(--text);
+    font-weight: 600;
+}
+
+.primaryButton:hover {
+    background-color: var(--primary);
+}
+
+.editButton {
+    background-color: var(--btn-soft-bg);
+    color: var(--btn-soft-text);
+    font-weight: 600;
+}
+
+.editButton:hover {
+    background-color: var(--secondary);
+}
+
+.deleteButton {
+    background-color: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+}
+
+.deleteButton:hover {
+    background-color: var(--btn-danger-bg-hover);
+}
+
+/* Task list */
+.taskListSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.taskMessage {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.taskCard {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background-color: var(--task-card-bg);
+}
+
+.taskCard.completed {
+    background-color: var(--task-card-done-bg);
+}
+
+.taskCard > label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.taskCard > label input[type="checkbox"] {
+    width: auto;
+    accent-color: #82996D;
+}
+
+.taskCard > label span {
+    overflow-wrap: anywhere;
+}
+
+.taskCard.completed .taskTitleText {
+    color: var(--muted);
+    text-decoration: line-through;
+}
+
+.taskCard > p {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.overdueLabel {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background-color: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.taskActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.taskCard button {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+/* Responsive layout */
+@media (max-width: 750px) {
+    .tasksContent {
+        padding: 25px 18px;
+        /* add margin-left: 0; width: 100%; if your nav collapses here */
+    }
+}
+
+@media (max-width: 480px) {
+    .tasksContent > h1 {
+        font-size: 25px;
+    }
+
+    .taskProgress,
+    .taskFormSection,
+    .taskListSection {
+        padding: 18px;
+    }
+}

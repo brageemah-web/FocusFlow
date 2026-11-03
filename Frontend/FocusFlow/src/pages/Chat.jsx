@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
 import socket from "../socket";
-
+import "../styles/pages/Chat.css";
 
 function Chat() {
     const [conversations, setConversations] = useState([]);
@@ -15,7 +15,7 @@ function Chat() {
 
     const [friends, setFriends] = useState([]);
     const [loadingFriends, setLoadingFriends] = useState(true);
-    const [selectedFriendId, setSelectedFriendId] = useState("");
+    const [friendSearch, setFriendSearch] = useState("");
 
     const [onlineUsers, setOnlineUsers] = useState([]);
 
@@ -27,24 +27,31 @@ function Chat() {
         return email.split("@")[0];
     };
 
-    // Create a new conversation
-const createConversation = async (event) => {
-    event.preventDefault();
+    const filteredFriends = (friends || []).filter((friend) => {
+        const search = friendSearch.toLowerCase().trim();
+        const name = (friend.name || "").toLowerCase();
+        const email = (friend.email || "").toLowerCase();
 
-    if (!selectedFriendId) {
+        return name.includes(search) || email.includes(search);
+    });
+
+    // Create a new conversation
+const createConversation = async (friendId) => {
+
+    /*if (!friendId) {
         setStatusMessage("Please select a friend.");
         return;
-    }
+    }*/
 
     try {
-        const data = await api(`/conversations/${selectedFriendId}`, {
+        const data = await api(`/conversations/${friendId}`, {
             method: "POST"
         });
 
         const conversation = data.conversation;
 
         const friend = conversation.participants.find(
-            (participant) => participant._id === selectedFriendId
+            (participant) => String(participant._id) === String(friendId)
         );
 
         if (!friend) {
@@ -69,7 +76,7 @@ const createConversation = async (event) => {
         });
 
         setSelectedChatId(conversation._id);
-        setSelectedFriendId("");
+        setFriendSearch("");
         setStatusMessage(data.message);
 
     } catch (error) {
@@ -488,6 +495,8 @@ useEffect(() => {
     };
 }, []);
 
+
+
     return (
         <>
             <Navigation />
@@ -507,32 +516,40 @@ useEffect(() => {
                 <section className="newConversationSection">
                     <h2>Start New Conversation</h2>
 
-                    
-                <form className="newConversationForm" onSubmit={createConversation}>
-                    <label htmlFor="friendSelect">
-                        Select a friend
-                    </label>
+                    <input type = "text"
+                        className = "friendSearchInput"
+                        value={friendSearch}
+                        placeholder = "Search friend by name or email..."
+                        onChange={(event) => setFriendSearch(event.target.value)}
+                    />
 
-                    <select
-                        id="friendSelect"
-                        value={selectedFriendId}
-                        onChange={(event) => setSelectedFriendId(event.target.value)}
-                        required
-                    >
-                        <option value="">Choose a friend</option>
+                        {friendSearch.trim()  &&  (
+                            <div className = "friendSearchResults">
+                                {loadingFriends ? (
+                                    <p>Loading friends...</p>
+                                ) : filteredFriends.length > 0 ? (
+                                    filteredFriends.map((friend) => (
+                                        <article className="friendSearch" key={friend._id}>
+                                            <div>
+                                                <p>{friend.name}</p>
+                                                <small>{friend.email}</small>
+                                            </div>
 
-                        {friends.map((friend) => (
-                            <option key={friend._id} value={friend._id}>
-                                {friend.name} ({friend.email})
-                            </option>
-                        ))}
-                    </select>
+                                            <button
+                                                className="startConversationButton"
+                                                type="button"
+                                                onClick={() => createConversation(friend._id)}
+                                            >
+                                                Start Conversation
+                                            </button>
+                                        </article>
+                                    ))
+                                ) : (
+                                    <p>No friends found matching your search.</p>
+                                )}
+                            </div>
+                        )}
 
-                    <button className="startConversationButton"
-                        type="submit" disabled={!selectedFriendId}>
-                        Start Conversation
-                    </button>
-                </form>
 
                 </section>
 
@@ -544,6 +561,7 @@ useEffect(() => {
                     ) : (
                         conversations.map((chat) => (
                           <article className="conversationCard" key={chat.id}>
+                            <div className="conversationInfo">
                                 <p className="conversationName">
                                     {chat.name}
 
@@ -560,6 +578,7 @@ useEffect(() => {
 
                                 <p className="conversationUsername">{chat.username}</p>
 
+                            </div>
                                 <button className="openChatButton"
                                     type="button"
                                     onClick={() => setSelectedChatId(chat.id)}
@@ -574,7 +593,7 @@ useEffect(() => {
                 {selectedChat && (
                     <section className="activeChatSection">
                         <h2 className="activeChatHeading">Chat with {selectedChat.name}</h2>
-                        <p>@{getUsername(selectedChat.username)}</p>
+                        <p className="activeChatUsername">@{getUsername(selectedChat.username)}</p>
 
                         <div
                             className="messagesContainer"

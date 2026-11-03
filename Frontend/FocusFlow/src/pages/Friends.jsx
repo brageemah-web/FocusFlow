@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
+import "../styles/pages/Friends.css";
 
 
 function Friends() {
@@ -206,22 +207,22 @@ function Friends() {
         <>
             <Navigation />
 
-            <main>
+            <main className="friendsContent">
                 <h1>Friends</h1>
                 <p>
                     Connect with friends and keep each other motivated.
                 </p>
 
                 {message && (
-                    <p role="status" aria-live="polite">
+                    <p className="friendsMessage" role="status" aria-live="polite">
                         {message}
                     </p>
                 )}
 
-                <section>
+                <section className="findFriendsSection">
                     <h2>Find Friends </h2>
 
-                    <form onSubmit={searchUsers}>
+                    <form className="friendSearchForm" onSubmit={searchUsers}>
                         <label htmlFor="searchUsers">
                             Search by name or username
                         </label>
@@ -241,9 +242,9 @@ function Friends() {
                     </form>
 
                     {searchResults.map((user) => (
-                        <div key={user.id}>
+                        <div className="friendItem" key={user.id}>
                             <span>{user.name}</span>
-                            <button
+                            <button className="addFriendButton"
                                 type="button"
                                 onClick={() => sendFriendRequest(user)}
                             >
@@ -253,7 +254,7 @@ function Friends() {
                     ))}
                 </section>
 
-                <section>
+                <section className="friendsListSection">
                     <h2>My Friends ({friends.length})</h2>
 
                     {loading ? (
@@ -262,10 +263,11 @@ function Friends() {
                         <p>You haven't added any friends yet.</p>
                     ) : (
                         friends.map((friend) => (
-                            <div key={friend._id}>
+                            <div className="friendItem" key={friend._id}>
                                 <span>{friend.name}</span>
 
                                 <button type="button"
+                                    className="removeFriendButton"
                                     onClick={() => removeFriend(friend._id)}>
                                     Remove
                                 </button>
@@ -274,16 +276,16 @@ function Friends() {
                     )}
                 </section>
 
-                <section>
+                <section className="sentRequestsSection">
                     <h2>Sent Requests ({sentRequests.length})</h2>
 
                     {sentRequests.length === 0 ? (
                         <p>You have no pending sent requests.</p>
                     ) : (
                         sentRequests.map((request) => (
-                            <div key={request.id}>
+                            <div className="friendItem" key={request.id}>
                                 <span>{request.name} — Pending</span>
-                                <button
+                                <button className="cancelRequestButton"
                                     type="button"
                                     onClick={() => cancelRequest(request.id)}
                                 >
@@ -294,7 +296,7 @@ function Friends() {
                     )}
                 </section>
 
-                <section>
+                <section className="receivedRequestsSection">
                     <h2>
                         Received Requests ({receivedRequests.length})
                     </h2>
@@ -304,17 +306,17 @@ function Friends() {
                         <p>You have no incoming friend requests.</p>
                     ) : (
                         receivedRequests.map((request) => (
-                            <div key={request.id}>
+                            <div className="friendItem" key={request.id}>
                                 <span>{request.name}</span>
 
-                                <button
+                                <button className="acceptRequestButton"
                                     type="button"
                                     onClick={() => acceptRequest(request)}
                                 >
                                     Accept
                                 </button>
 
-                                <button
+                                <button className="declineRequestButton"
                                     type="button"
                                     onClick={() => declineRequest(request.id)}
                                 >
