@@ -23,6 +23,10 @@ function Chat() {
         (chat) => chat.id === selectedChatId
     );
 
+    const getUsername = (email = "") => {
+        return email.split("@")[0];
+    };
+
     // Create a new conversation
 const createConversation = async (event) => {
     event.preventDefault();
@@ -570,7 +574,7 @@ useEffect(() => {
                 {selectedChat && (
                     <section className="activeChatSection">
                         <h2 className="activeChatHeading">Chat with {selectedChat.name}</h2>
-                        <p>@{selectedChat.username}</p>
+                        <p>@{getUsername(selectedChat.username)}</p>
 
                         <div
                             className="messagesContainer"
