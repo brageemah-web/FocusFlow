@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
+import {useNavigate} from "react-router-dom";
+import socket from "../socket";
 
 function Settings() {
     const [profile, setProfile] = useState({
@@ -13,11 +15,11 @@ function Settings() {
         return localStorage.getItem("appearance") || "light";
     });
 
-    const [notifications, setNotifications] = useState({
+   /* const [notifications, setNotifications] = useState({
         taskReminders: true,
         studyReminders: true,
         friendRequests: true,
-    });
+    });*/
 
     const [passwordData, setPasswordData] = useState({
         currentPassword: "",
@@ -47,12 +49,12 @@ function Settings() {
         }
     };
 
-    const toggleNotification = (setting) => {
+    /*const toggleNotification = (setting) => {
         setNotifications((current) => ({
             ...current,
             [setting]: !current[setting],
         }));
-    };
+    };*/
 
     const [loading, setLoading] = useState(true);
     useEffect(() => {
@@ -132,6 +134,20 @@ function Settings() {
         }
     }, [appearance]);
 
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Disconnect the user's Socket.IO connection
+        socket.disconnect();
+
+        // Remove authentication details
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+
+        // Redirect to Login
+        navigate("/");
+    };
 
     return (
         <>
@@ -307,6 +323,12 @@ function Settings() {
                         Friend request notifications
                     </label>
                 </section>}*/}
+
+                <div className="sideBarBottom">
+                    <button onClick={handleLogout}>
+                        Log Out
+                    </button>
+                </div>
             </main>
         </>
     );
