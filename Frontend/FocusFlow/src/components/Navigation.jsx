@@ -18,7 +18,7 @@ function Navigation(){
 
     return(
         <aside className = "sideBar">
-            <h2>FocusFlow</h2>
+            <h2><NavLink to ="/dashboard">FocusFlow</NavLink></h2>
             <nav>
                 <NavLink to ="/dashboard">Dashboard</NavLink>
                 <NavLink to = "/tasks">Tasks</NavLink>
