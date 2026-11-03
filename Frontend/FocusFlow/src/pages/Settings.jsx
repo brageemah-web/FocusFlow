@@ -208,10 +208,6 @@ function Settings() {
                     </select>
 
                     <p>Selected theme: {appearance}</p>
-                    <p>
-                        Applying the theme across the app can be connected
-                        when we implement shared theme state.
-                    </p>
                 </section>
 
                 <section className="settingsSection passwordSection">
