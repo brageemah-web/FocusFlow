@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
+import "../styles/pages/ForgotPassword.css";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ function ForgotPassword() {
     };
 
     return (
-        <main className="forgotPasswordPage">
+    <main className="forgotPasswordPage">
     <div className="forgotPasswordCard">
         <h1>Forgot Password?</h1>
 

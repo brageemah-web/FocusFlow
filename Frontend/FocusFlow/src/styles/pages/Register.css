@@ -1,0 +1,238 @@
+/* ==============================
+   AUTH (LOGIN, REGISTER, FORGOT PASSWORD)
+================================= */
+
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #E8EDB9 0%, #F7F8F2 50%, #C0D09D 100%);
+}
+
+.loginForm {
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    background-color: var(--surface);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+}
+
+.loginForm h1 {
+    text-align: center;
+    font-size: 32px;
+    color: var(--success);
+    margin-bottom: 12px;
+}
+
+.loginWelcome {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+.loginWelcome span {
+    display: inline-block;
+    color: var(--text);
+    font-size: 21px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+/* Form layout */
+.loginForm form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.loginForm form > label:not(.showPassword) {
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.loginForm form input:not([type="checkbox"]) {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background-color: var(--input-bg, #FAFBF7);
+    color: var(--text);
+}
+
+.loginForm form input:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(168, 190, 143, 0.25);
+}
+
+/* Show password */
+.showPassword {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.showPassword input {
+    width: auto;
+    accent-color: #82996D;
+}
+
+/* Links */
+.forgotPassword {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+.forgotPassword a,
+.registerPrompt a,
+.backToLogin {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.forgotPassword a:hover,
+.registerPrompt a:hover,
+.backToLogin:hover {
+    text-decoration: underline;
+}
+
+.backToLogin {
+    display: block;
+    margin-top: 22px;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* Submit button */
+.loginForm form button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    background-color: var(--secondary);
+    color: #30382D;
+    border-radius: 9px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.loginForm form button:hover:not(:disabled) {
+    background-color: var(--primary);
+}
+
+/* Register prompt */
+.registerPrompt {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* Error messages */
+.formError {
+    color: var(--btn-danger-text, #B54848);
+    background-color: var(--btn-danger-bg, #F8EEEE);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+/* Password strength */
+.passwordStrength {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 5px 0 12px;
+}
+
+.strengthHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.strength-label { color: var(--text); }
+.strength-percentage { color: var(--muted); }
+
+.strengthSegments {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.segment {
+    flex: 1;
+    height: 6px;
+    background-color: var(--border);
+    border-radius: 10px;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Dark mode */
+:root[data-theme="dark"] .loginPage {
+    background: linear-gradient(135deg, #2B3229 0%, #20251F 50%, #46553D 100%);
+}
+
+:root[data-theme="dark"] .loginForm form input:not([type="checkbox"]) {
+    background-color: #343D31;
+    color: var(--text);
+    border-color: var(--border);
+}
+
+:root[data-theme="dark"] .loginForm form input::placeholder {
+    color: var(--muted);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .loginForm {
+        padding: 28px 22px;
+    }
+
+    .loginForm h1 {
+        font-size: 27px;
+    }
+}
+
+/* Password strength */
+.passwordStrength {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 5px 0 12px;
+}
+
+.strengthHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.strength-label { color: var(--text); }
+.strength-percentage { color: var(--muted); }
+
+.strengthSegments {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.segment {
+    flex: 1;
+    height: 6px;
+    background-color: var(--border);
+    border-radius: 10px;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}

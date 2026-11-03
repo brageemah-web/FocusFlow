@@ -1,0 +1,145 @@
+/* Friends page */
+.friendsContent {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    margin-left: 250px;
+    padding: 35px;
+}
+
+.friendsContent > h1 {
+    font-size: 30px;
+}
+
+.friendsContent > p {
+    color: var(--muted);
+    margin-top: -20px;
+}
+
+/* Friends sections */
+.findFriendsSection,
+.friendsListSection,
+.sentRequestsSection,
+.receivedRequestsSection {
+    padding: 25px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.friendsContent section h2 {
+    font-size: 20px;
+    margin-bottom: 18px;
+}
+
+/* Status message */
+.friendsMessage {
+    padding: 12px 15px;
+    background-color: var(--btn-soft-bg);
+    border-radius: 8px;
+    color: var(--btn-soft-text);
+    font-size: 14px;
+}
+
+/* Search form */
+.friendSearchForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 500px;
+}
+
+.friendSearchForm label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.friendSearchForm button {
+    align-self: flex-start;
+    min-width: 110px;
+    font-weight: 600;
+}
+
+/* Friend and request items */
+.friendItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 15px;
+    margin-top: 12px;
+    background-color: var(--task-card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.friendItem span {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.friendActions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* Action buttons */
+.addFriendButton,
+.acceptRequestButton {
+    background-color: var(--secondary);
+    color: var(--text);
+    font-weight: 600;
+}
+
+.removeFriendButton,
+.declineRequestButton {
+    background-color: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+}
+
+.removeFriendButton:hover,
+.declineRequestButton:hover {
+    background-color: var(--btn-danger-bg-hover);
+}
+
+.cancelRequestButton {
+    background-color: var(--btn-soft-bg);
+    color: var(--btn-soft-text);
+}
+
+.cancelRequestButton:hover {
+    background-color: var(--secondary);
+    color: var(--text);
+}
+
+/* Responsive layout */
+@media (max-width: 750px) {
+    .friendsContent {
+        padding: 25px 18px;
+    }
+
+    .findFriendsSection,
+    .friendsListSection,
+    .sentRequestsSection,
+    .receivedRequestsSection {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .friendsContent > h1 {
+        font-size: 25px;
+    }
+
+    .friendItem {
+        align-items: flex-start;
+    }
+}

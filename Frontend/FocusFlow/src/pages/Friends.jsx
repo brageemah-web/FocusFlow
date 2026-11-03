@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
+import "../styles/pages/Friends.css";
 
 
 function Friends() {

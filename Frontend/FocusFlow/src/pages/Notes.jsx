@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Navigation from "../components/Navigation";
 import api from "../api";
-
+import "../styles/pages/Notes.css";
 
 function Notes() {
     const [notes, setNotes] = useState([]);
@@ -48,7 +48,7 @@ function Notes() {
         const content = noteContent.trim();
 
         if (!title || !content){
-            setMessage("Please enter a title and not content");
+            setMessage("Please enter a title and content");
             return;
         }
 
@@ -70,7 +70,7 @@ function Notes() {
             ]);
 
             clearForm();
-            setMessage("Failed to create note");
+            setMessage("Note created successfully");
         }
         catch(error){
             console.error("Failed to create note: ", error);
@@ -130,7 +130,7 @@ function Notes() {
             )
         );
 
-        setMessage("Notes deleted successfully.");
+        setMessage("Note deleted successfully.");
     }
     catch(error){
         console.error("Failed to delete note: ", error);
@@ -207,6 +207,7 @@ function Notes() {
                             />
                         </div>
 
+                        <div className="noteFormActions">
                         <button type="submit" className="saveButton">
                             {editingNoteId
                                 ? "Save Changes"
@@ -221,6 +222,7 @@ function Notes() {
                                 Cancel
                             </button>
                         )}
+                        </div>
                     </form>
                 </section>
 
@@ -240,15 +242,19 @@ function Notes() {
                         }
                         placeholder="Search by title or content..."
                     />
+                    {message && <p className="noteMessage" role="status">{message}</p>}
 
-                    {filteredNotes.length === 0 ? (
+                    {loading ? (
+                        <p>Loading notes...</p>
+                    ) :filteredNotes.length === 0 ? (
                         <p>
                             {notes.length === 0
                                 ? "No notes yet. Create your first note above!"
                                 : "No notes match your search."}
                         </p>
                     ) : (
-                        filteredNotes.map((note) => (
+                        <div className="notesCardList">
+                        {filteredNotes.map((note) => (
                             <article className="noteCard" key={note._id}>
                                 <h3>{note.title || "Untitled note"}</h3>
                                 <p>{note.content}</p>
@@ -294,7 +300,8 @@ function Notes() {
                                     </button>
                                 </div>
                             </article>
-                        ))
+                        ))}
+                        </div>
                     )}
                 </section>
             </main>
