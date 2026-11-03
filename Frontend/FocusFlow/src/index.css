@@ -2100,3 +2100,160 @@ main {
 :root[data-theme="dark"] .calendarContent > p {
     color: var(--muted);
 }
+
+/* ==============================
+   TABLET AND MOBILE LAYOUT
+================================= */
+
+@media (max-width: 750px) {
+
+    /* Sidebar becomes a navigation bar at the top */
+    .sideBar {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        padding: 15px 18px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sideBar h2 {
+        font-size: 23px;
+        margin-bottom: 15px;
+        padding-left: 0;
+    }
+
+    /* Allow navigation links to scroll horizontally */
+    .sideBar nav {
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scrollbar-width: thin;
+    }
+
+    .sideBar nav a {
+        flex: 0 0 auto;
+        padding: 9px 12px;
+        white-space: nowrap;
+        font-size: 13px;
+    }
+
+    .sideBarBottom {
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+
+    .sideBarBottom button {
+        width: auto;
+        min-width: 100px;
+    }
+
+    /* Remove the space previously reserved for the sidebar */
+    main,
+    .dashboardContent,
+    .tasksContent,
+    .calendarContent,
+    .notesContent,
+    .pomodoroContent,
+    .friendsContent,
+    .chatContent,
+    .settingsContent {
+        width: 100%;
+        margin-left: 0;
+        min-height: auto;
+        padding: 25px 18px;
+    }
+
+    /* Prevent grid items from forcing horizontal overflow */
+    .summaryCards,
+    .dashboardSections,
+    .dashboardQuickAccess > div {
+        min-width: 0;
+    }
+
+    /* Keep long content inside its containers */
+    .dashboardPanel,
+    .taskCard,
+    .noteCard,
+    .calendarSection,
+    .calendarEventsSection,
+    .timerSection,
+    .settingsSection {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* Forms and buttons should fit their containers */
+    input,
+    textarea,
+    select {
+        max-width: 100%;
+    }
+
+    button {
+        max-width: 100%;
+    }
+}
+
+
+/* Smaller phones */
+@media (max-width: 480px) {
+
+    main,
+    .dashboardContent,
+    .tasksContent,
+    .calendarContent,
+    .notesContent,
+    .pomodoroContent,
+    .friendsContent,
+    .chatContent,
+    .settingsContent {
+        padding: 20px 14px;
+    }
+
+    .sideBar {
+        padding: 12px;
+    }
+
+    .sideBar h2 {
+        font-size: 21px;
+    }
+
+    .sideBar nav a {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    /* Keep page headings readable */
+    .dashboardHeader h1,
+    .tasksContent > h1,
+    .calendarContent > h1,
+    .notesContent > h1,
+    .pomodoroContent > h1,
+    .friendsContent > h1,
+    .chatContent > h1,
+    .settingsContent > h1 {
+        font-size: 24px;
+    }
+
+    /* Allow dashboard header content to wrap */
+    .dashboardHeader {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    /* Make task and note action buttons easier to use */
+    .noteActions {
+        flex-wrap: wrap;
+    }
+
+    .taskCard button,
+    .noteActions button {
+        margin-right: 5px;
+        margin-top: 8px;
+    }
+}
