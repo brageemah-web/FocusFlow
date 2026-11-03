@@ -205,6 +205,13 @@ const completionPercentage = totalTasks === 0
     ? 0
     : Math.round((completedTasks / totalTasks) * 100);
 
+
+    useEffect(() => {
+        if (totalTasks > 0 && completedTasks === totalTasks) {
+            alert("You completed all your tasks 🥳");
+        }
+    }, [completedTasks, totalTasks]);
+
     return (
         <>
             <Navigation />
@@ -221,6 +228,7 @@ const completionPercentage = totalTasks === 0
                     </p>
 
                     <h3>{completionPercentage}%</h3>
+
 
                     <div
                         style={{
