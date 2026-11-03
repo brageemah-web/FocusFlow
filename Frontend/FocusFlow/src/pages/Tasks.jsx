@@ -230,7 +230,7 @@ const completionPercentage = totalTasks === 0
                     <h3>{completionPercentage}%</h3>
 
 
-                    <div 
+                    <div
                         style={{
                             width: "100%",
                             height: "12px",
@@ -302,14 +302,14 @@ const completionPercentage = totalTasks === 0
 
                         <div className = "taskFormActions">
 
-                            <button type="submit">
+                            <button type="submit" className = "primaryButton">
                                 {editingTaskId !== null
                                     ? "Save Changes"
                                     : "Add Task"}
                             </button>
 
                             {editingTaskId !== null && (
-                                <button
+                                <button className = "primaryButton"
                                     type="button"
                                     onClick={clearForm}
                                 >
@@ -370,7 +370,7 @@ const completionPercentage = totalTasks === 0
                                     Edit
                                 </button>
 
-                                <button type="button"
+                                <button type="button" className = "deleteButton"
                                     onClick={() => deleteTask(task._id)}>
                                     Delete
                                 </button>
