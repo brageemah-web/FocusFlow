@@ -31,8 +31,8 @@
 
 /* Dark Theme */
 :root[data-theme="dark"] {
-    --primary: #8FA77A;
-    --secondary: #A8BE8F;
+    --primary: #A8BE8F;
+    --secondary: #8FA77A;
     --accent: #46553D;
 
     --background: #20251F;
@@ -233,6 +233,7 @@ main {
     padding: 35px;
     min-height: 100vh;
 }
+
 
 
 /* ==============================
@@ -711,12 +712,12 @@ main {
 
 /* Buttons */
 .primaryButton {
-    background-color: var(--secondary);
+    background-color: var(--primary);
     font-weight: 600;
 }
 
-.secondaryButton {
-    background-color: #EEF0E9;
+.primaryButton:hover {
+    background-color:var(--secondary);
 }
 
 .editButton {
@@ -730,7 +731,7 @@ main {
 }
 
 .deleteButton:hover {
-    background-color: #F2DCDC;
+    background-color: #f2dcdc;
 }
 
 /* Task cards */
