@@ -8,9 +8,8 @@ import socket from "../socket";
 function Settings() {
     const [profile, setProfile] = useState({
         name: "",
-        email: "",
+        email: ""
     });
-
     const [appearance, setAppearance] = useState(() => {
         return localStorage.getItem("appearance") || "light";
     });
@@ -40,7 +39,7 @@ function Settings() {
 
             setProfile({
                 name: data.user.name,
-                email: data.user.email,
+                email: data.user.email
             });
 
             setMessage(data.message);
@@ -61,10 +60,11 @@ function Settings() {
         const fetchProfile = async () => {
             try {
                 const data = await api("/auth/me");
+                const user = data.user || data;
 
                 setProfile({
-                    name: data.name,
-                    email: data.email,
+                    name: user.name || "",
+                    email: user.email || "",
                 });
             } catch (error) {
                 setMessage(error.message);
@@ -186,13 +186,7 @@ function Settings() {
                                     id="email"
                                     type="email"
                                     value={profile.email}
-                                    onChange={(event) =>
-                                        setProfile((current) => ({
-                                            ...current,
-                                            email: event.target.value,
-                                        }))
-                                    }
-                                    required
+                                    readOnly
                                 />
                             </div>
 
@@ -224,10 +218,6 @@ function Settings() {
                     </select>
 
                     <p>Selected theme: {appearance}</p>
-                    <p>
-                        Applying the theme across the app can be connected
-                        when we implement shared theme state.
-                    </p>
                 </section>
 
                 <section className="settingsSection passwordSection">
@@ -257,7 +247,7 @@ function Settings() {
                                     newPassword: event.target.value
                                 })
                             }
-                            minLength={6}
+                            minLength={8}
                             required
                         />
 
@@ -271,7 +261,7 @@ function Settings() {
                                     confirmPassword: event.target.value
                                 })
                             }
-                            minLength={6}
+                            minLength={8}
                             required
                         />
 
