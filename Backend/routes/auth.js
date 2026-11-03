@@ -157,39 +157,27 @@ router.get("/me", protect, async (req, res) => {
 // Update logged-in user's profile
 router.put("/me", protect, async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const { name } = req.body;
 
-        if (!name || !email) {
+        if (!name) {
             return res.status(400).json({
-                message: "Name and email are required"
+                message: "Name is required"
             });
         }
 
         const updatedName = name.trim();
-        const updatedEmail = email.trim().toLowerCase();
 
-        if (!updatedName || !updatedEmail) {
+        if (!updatedName) {
             return res.status(400).json({
-                message: "Name and email cannot be empty"
+                message: "Name cannot be empty"
             });
         }
 
-        const existingUser = await User.findOne({
-            email: updatedEmail,
-            _id: { $ne: req.user.id }
-        });
-
-        if (existingUser) {
-            return res.status(409).json({
-                message: "This email is already in use"
-            });
-        }
 
         const user = await User.findByIdAndUpdate(
             req.user.id,
             {
                 name: updatedName,
-                email: updatedEmail
             },
             {
                 new: true,
