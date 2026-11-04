@@ -14,11 +14,11 @@ function Dashboard() {
     const [message, setMessage] = useState("");
 
     const [currentStreak] = useState(
-        () => Number(localStorage.getItem("currentStreak")) || 0
+        Number(localStorage.getItem("currentStreak")) || 0
     );
 
     const [longestStreak] = useState(
-        () => Number(localStorage.getItem("longestStreak")) || 0
+        Number(localStorage.getItem("longestStreak")) || 0
     );
 
     useEffect(() => {
