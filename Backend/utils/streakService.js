@@ -22,31 +22,24 @@ const getYesterday = (today) => {
 
 const updateStreak = async (userId) => {
     const user = await User.findById(userId);
-
-    if (!user) {
-        throw new Error("User not found");
-    }
+    if (!user) throw new Error("User not found");
 
     const today = getLocalDate();
     const yesterday = getYesterday(today);
 
-    // Already logged in today
-    if (user.lastActiveDate === today) {
-        return user;
-    }
+    const last = user.lastActiveDate
+        ? getLocalDate(new Date(user.lastActiveDate))
+        : null;
 
-    // Consecutive login
-    if (user.lastActiveDate === yesterday) {
-        user.currentStreak += 1;
-    } else {
-        // First login or missed day
-        user.currentStreak = 1;
-    }
+    if (last === today) return user;
+
+    user.currentStreak =
+        last === yesterday ? (user.currentStreak || 0) + 1 : 1;
 
     // Update longest streak
     user.longestStreak = Math.max(
         user.currentStreak,
-        user.longestStreak
+        user.longestStreak || 0 
     );
 
     // Save today's activity date

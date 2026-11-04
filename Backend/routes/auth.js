@@ -34,7 +34,7 @@ router.post("/register", async(req,res) => {
         //chack password length
         if(password.length < 6){
             // 400 Bad Request
-            res.status(400).json({
+            return res.status(400).json({
                 message : "Password must be at least 6 characters long"
             });
         }
@@ -147,18 +147,16 @@ router.post("/login",async(req,res) => {
 // Get logged-in user's profile
 router.get("/me", protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password");
+        
 
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
+        const user = await updateStreak(req.user.id);
 
         res.status(200).json({
             id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak
         });
 
     } catch (error) {

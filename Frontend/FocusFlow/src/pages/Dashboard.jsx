@@ -13,13 +13,8 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
 
-    const [currentStreak] = useState(
-        Number(localStorage.getItem("currentStreak")) || 0
-    );
-
-    const [longestStreak] = useState(
-        Number(localStorage.getItem("longestStreak")) || 0
-    );
+    const [currentStreak, setCurrentStreak] = useState(0);
+    const [longestStreak, setLongestStreak] = useState(0);
 
     useEffect(() => {
     const fetchDashboardData = async () => {
@@ -36,6 +31,10 @@ function Dashboard() {
                 api("/pomodoro")
             ]);
 
+            const userData = await api("/auth/me");
+
+            setCurrentStreak(userData.currentStreak || 0);
+            setLongestStreak(userData.longestStreak || 0);
             setTasks(tasksData);
             setNotes(notesData);
             setEvents(eventsData);
