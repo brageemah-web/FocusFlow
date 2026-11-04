@@ -26,6 +26,18 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date,
         default: null
+    },
+    currentStreak: {
+        type: Number,
+        default: 0
+    },
+    longestStreak: {
+        type: Number,
+        default: 0
+    },
+    lastActiveDate: {
+        type: String,
+        default: null
     }
 },
 {

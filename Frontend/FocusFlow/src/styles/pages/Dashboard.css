@@ -230,3 +230,53 @@
         font-size: 25px;
     }
 }
+
+/* Daily Streak Section */
+.dailyStreak {
+    margin: 25px 0;
+    width: 100%;
+}
+
+/* Streak Card */
+.streakCard {
+    background: linear-gradient(135deg, #fff8e8, #ffedcc);
+    border: 1px solid #f3d9a8;
+    border-radius: 16px;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.streakCard h3 {
+    font-size: 1.1rem;
+    color: #8b572a;
+    margin: 0 0 5px;
+}
+
+.streakCard .summaryNumber {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #e58a28;
+    margin: 0;
+}
+
+.streakCard > p:not(.summaryNumber):not(.longestStreak) {
+    font-size: 0.9rem;
+    color: #805d3b;
+    margin: 2px 0 8px;
+}
+
+.streakCard .longestStreak {
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #76522d;
+    margin: 0;
+}

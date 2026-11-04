@@ -13,6 +13,14 @@ function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("");
 
+    const [currentStreak] = useState(
+        () => Number(localStorage.getItem("currentStreak")) || 0
+    );
+
+    const [longestStreak] = useState(
+        () => Number(localStorage.getItem("longestStreak")) || 0
+    );
+
     useEffect(() => {
     const fetchDashboardData = async () => {
         try {
@@ -161,6 +169,26 @@ const upcomingDeadlines = [
                         Organize your tasks, plan your day, and make
                         time for what matters.
                     </p>
+                </section>
+
+                <section className = "dailyStreak">
+                    <div className="streakCard">
+                        <h3>Daily Streak 🔥</h3>
+
+                        <p className="summaryNumber">
+                            {currentStreak}
+                        </p>
+
+                        <p>
+                            {currentStreak === 1
+                                ? "Day in a row"
+                                : "Days in a row"}
+                        </p>
+
+                        <p className="longestStreak">
+                            🏆 Longest streak: {longestStreak} days
+                        </p>
+                    </div>
                 </section>
 
                 {/* Summary Cards */}

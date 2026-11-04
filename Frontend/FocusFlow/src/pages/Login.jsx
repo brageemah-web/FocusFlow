@@ -38,6 +38,10 @@ function Login(){
             localStorage.setItem("token", data.token);
             localStorage.setItem("userId", data.user.id);
 
+            // Save streak information
+            localStorage.setItem("currentStreak", data.user.currentStreak);
+            localStorage.setItem("longestStreak", data.user.longestStreak);
+
             // Connect Socket.IO using the JWT token
             socket.auth = {
                 token: data.token

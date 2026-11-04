@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/emailService");
+const updateStreak = require("../utils/streakService");
 
 
 const Task = require("../models/Task");
@@ -111,6 +112,9 @@ router.post("/login",async(req,res) => {
             });
         }
 
+        // Update the user's daily streak       
+        const updatedUser = await updateStreak(user._id);
+
         //generate a JWT
         const token = jwt.sign(
             {id : user._id},
@@ -123,9 +127,11 @@ router.post("/login",async(req,res) => {
         res.status(200).json({
             message : "Login successful",
             token,
-            user : {
-                id: user._id,
-                name : user.name,
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                currentStreak: updatedUser.currentStreak,
+                longestStreak: updatedUser.longestStreak
             }
         });
     }
