@@ -22,8 +22,16 @@ const getYesterday = (today) => {
 
 const updateStreak = async (userId) => {
     const user = await User.findById(userId);
+    
+    console.log("STREAK DEBUG", {
+    lastActiveDate: user.lastActiveDate,
+    type: typeof user.lastActiveDate,
+    currentStreak: user.currentStreak,
+    today: getLocalDate(),
+});
     if (!user) throw new Error("User not found");
 
+    
     const today = getLocalDate();
     const yesterday = getYesterday(today);
 
