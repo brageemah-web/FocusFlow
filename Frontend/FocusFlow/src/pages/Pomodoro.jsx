@@ -3,6 +3,7 @@ import Navigation from "../components/Navigation";
 import { usePomodoro } from "../context/usePomodoro.js";
 import api from "../api";
 import "../styles/pages/Pomodoro.css";
+import MusicPlayer from "../components/music/MusicPlayer";
 
 function Pomodoro() {
     const [sessions, setSessions] = useState([]);
@@ -158,6 +159,8 @@ function Pomodoro() {
                     </button>
                 </section>
 
+                <MusicPlayer/>
+
                 <section className="timerSettings">
                     <h2>Timer Settings</h2>
                     <p>Choose your preferred session durations.</p>
@@ -184,6 +187,7 @@ function Pomodoro() {
                         <input
                             type="checkbox"
                             checked={soundEnabled}
+                            title = "Enable timer sound"
                             onChange={(e) =>
                                 setSoundEnabled(e.target.checked)
                             }

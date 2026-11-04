@@ -336,6 +336,7 @@ const completionPercentage = totalTasks === 0
                                 <label>
                                     <input
                                         type="checkbox"
+                                        title = "Complete Task"
                                         checked={task.completed}
                                         onChange={() => toggleTask(task._id)}
                                     />

@@ -230,6 +230,7 @@ function Register() {
                     <label className="showPassword"><br/>
                         <input
                             type="checkbox"
+                            title = "Show Password"
                             checked={showPassword}
                             onChange={(event) =>
                                 setShowPassword(event.target.checked)

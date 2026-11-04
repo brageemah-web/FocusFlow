@@ -90,6 +90,7 @@ function Login(){
 
                     <label className = "showPassword">
                         <input type = "checkbox" 
+                        title = "Show Password"
                         checked = {showPassword} 
                         onChange = {(event) => setShowPassword(event.target.checked)}
                         />
