@@ -26,7 +26,7 @@ function Register() {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         
         if (!passwordRegex.test(password)) {
-            setError(["Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character."]);
+            setError(["Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character (@$!%*?&)."]);
             return;
         }
 
