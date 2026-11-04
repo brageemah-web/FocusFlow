@@ -3,11 +3,14 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { PomodoroProvider } from "./context/PomodoroContext.jsx";
+import { MusicPlayerProvider } from "./context/MusicPlayerContext.jsx";
 
 createRoot(document.getElementById("root")).render(
     <StrictMode>
             <PomodoroProvider>
-                <App />
+                <MusicPlayerProvider>
+                    <App />
+                </MusicPlayerProvider>
             </PomodoroProvider>
     </StrictMode>
 );

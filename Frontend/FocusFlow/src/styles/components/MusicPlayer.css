@@ -1,0 +1,159 @@
+
+.music-player {
+    width: 100%;
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.music-player-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.music-player-header p {
+    margin: 5px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.music-track-info {
+    text-align: center;
+}
+
+.music-track-info h4 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    color: #333;
+}
+
+.music-track-info span {
+    font-size: 13px;
+    color: #888;
+}
+
+.music-progress input,
+.music-volume input {
+    width: 100%;
+    cursor: pointer;
+    accent-color: #8da875;
+}
+
+.music-time {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #888;
+}
+
+.music-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+}
+
+.music-controls button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+    color: #555;
+}
+
+.music-controls button:hover {
+    color: #8da875;
+}
+
+.music-controls .music-play-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #a8be8f;
+    color: white;
+    font-size: 20px;
+}
+
+.music-controls .music-play-button:hover {
+    background: #8da875;
+    color: white;
+}
+
+.music-volume {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.music-volume label {
+    font-size: 13px;
+    color: #666;
+}
+
+
+/* Dark mode - Music Player */
+[data-theme="dark"] .music-player {
+    background: #20251f;
+    border: 1px solid #343d32;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+[data-theme="dark"] .music-player-header h3 {
+    color: #e8eddf;
+}
+
+[data-theme="dark"] .music-player-header p {
+    color: #a2aa9a;
+}
+
+/* Track information */
+[data-theme="dark"] .music-track-info h4 {
+    color: #e8eddf;
+}
+
+[data-theme="dark"] .music-track-info span {
+    color: #a2aa9a;
+}
+
+/* Progress bar and volume slider */
+[data-theme="dark"] .music-progress input,
+[data-theme="dark"] .music-volume input {
+    accent-color: #a8be8f;
+}
+
+/* Playback time */
+[data-theme="dark"] .music-time {
+    color: #a2aa9a;
+}
+
+/* Playback controls */
+[data-theme="dark"] .music-controls button {
+    color: #c5cdbd;
+}
+
+[data-theme="dark"] .music-controls button:hover {
+    color: #a8be8f;
+}
+
+/* Play button */
+[data-theme="dark"] .music-controls .music-play-button {
+    background: #a8be8f;
+    color: #20251f;
+}
+
+[data-theme="dark"] .music-controls .music-play-button:hover {
+    background: #c0d09d;
+    color: #20251f;
+}
+
+/* Volume label */
+[data-theme="dark"] .music-volume label {
+    color: #c5cdbd;
+}
