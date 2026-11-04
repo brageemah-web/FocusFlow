@@ -20,9 +20,6 @@
     color-scheme: dark;
 }
 
-:root[data-theme="dark"] .tasksContent {
-    
-}
 
 .tasksContent > h1 {
     font-size: 30px;
@@ -247,22 +244,63 @@
     font-size: 13px;
 }
 
-/* Responsive layout */
+/* Tablets and below: nav stops being a sidebar */
 @media (max-width: 750px) {
     .tasksContent {
+        width: 100%;
+        margin-left: 0;
         padding: 25px 18px;
-        /* add margin-left: 0; width: 100%; if your nav collapses here */
+    }
+
+    .tasksContent > h1 {
+        font-size: 26px;
     }
 }
 
+/* Phones */
 @media (max-width: 480px) {
+    .tasksContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
     .tasksContent > h1 {
-        font-size: 25px;
+        font-size: 24px;
     }
 
     .taskProgress,
     .taskFormSection,
     .taskListSection {
-        padding: 18px;
+        padding: 16px;
+    }
+
+    .taskProgress h3 {
+        font-size: 24px;
+    }
+
+    /* 16px stops iOS Safari from zooming in when an input is focused */
+    .taskForm input,
+    .taskForm textarea,
+    .taskForm select {
+        font-size: 16px;
+    }
+
+    /* Full-width buttons are easier to tap */
+    .taskForm > .taskFormActions button {
+        flex: 1 1 100%;
+        padding: 12px;
+    }
+
+    .taskCard {
+        padding: 14px;
+    }
+
+    .taskActions button {
+        flex: 1;
+        padding: 10px 14px;
+    }
+
+    .overdueLabel {
+        margin-left: 0;
     }
 }

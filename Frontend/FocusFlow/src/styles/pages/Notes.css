@@ -169,6 +169,8 @@
 /* Responsive layout */
 @media (max-width: 750px) {
     .notesContent {
+        width: 100%;
+        margin-left: 0;
         padding: 25px 18px;
     }
 
@@ -178,3 +180,39 @@
     }
 }
 
+/* Phones */
+@media (max-width: 480px) {
+    .notesContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
+    .notesContent > h1 {
+        font-size: 25px;
+    }
+
+    .noteFormSection,
+    .notesListSection {
+        padding: 14px;
+    }
+
+    .noteCard {
+        padding: 14px;
+    }
+
+    /* 16px stops iOS Safari zooming in on focus */
+    .noteForm input,
+    .noteForm textarea,
+    .notesSearch,
+    .notesListSection input {
+        font-size: 16px;
+    }
+
+    /* Buttons share the row, easier to tap */
+    .noteFormActions button,
+    .noteActions button {
+        flex: 1;
+        min-width: 0;
+        padding: 10px;
+    }
+}

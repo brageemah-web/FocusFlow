@@ -353,8 +353,8 @@ function Settings() {
                     </label>
                 </section>}*/}
 
-                <div className="sideBarBottom">
-                    <button onClick={handleLogout}>
+                <div className="settingSection logoutSection">
+                    <button type = "button" className = "logoutButton" onClick={handleLogout}>
                         Log Out
                     </button>
                 </div>

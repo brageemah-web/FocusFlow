@@ -188,9 +188,11 @@
     flex-shrink: 0;
 }
 
-/* Responsive layout */
+/* Tablets and below: nav is no longer a sidebar */
 @media (max-width: 750px) {
     .pomodoroContent {
+        width: 100%;
+        margin-left: 0;
         padding: 25px 18px;
     }
 
@@ -200,18 +202,61 @@
     .sessionHistory {
         padding: 20px;
     }
-
-    .timerDisplay {
-        font-size: 55px;
-    }
 }
 
+/* Phones */
 @media (max-width: 480px) {
+    .pomodoroContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
     .pomodoroContent > h1 {
         font-size: 25px;
     }
 
+    .timerSection {
+        padding: 28px 16px;
+    }
+
+    .timerSection,
+    .timerSettings,
+    .sessionProgress,
+    .sessionHistory {
+        padding: 16px;
+    }
+
+    .timerSection {
+        padding: 28px 16px;
+    }
+
+    .timerHeading {
+        font-size: 20px;
+    }
+
+    /* Start and Reset share one row */
+    .timerButton,
+    .resetButton {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .durationOptions {
+        gap: 8px;
+    }
+
+    .durationButton {
+        padding: 10px 14px;
+    }
+
+    /* Name above the delete button, button full width */
     .sessionCard {
-        align-items: flex-start;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sessionCard .deleteButton {
+        width: 100%;
+        padding: 10px;
     }
 }

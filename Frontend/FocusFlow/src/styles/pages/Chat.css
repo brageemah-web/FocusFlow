@@ -256,22 +256,84 @@
     }
 }
 
+/* Tablets and below: nav is no longer a sidebar */
+@media (max-width: 750px) {
+    .chatContent {
+        width: 100%;
+        margin-left: 0;
+        padding: 25px 18px;
+    }
+
+    .newConversationSection,
+    .conversationsSection,
+    .activeChatSection {
+        padding: 18px;
+    }
+
+    .messageBubble {
+        max-width: 90%;
+    }
+}
+
+/* Phones */
 @media (max-width: 480px) {
+    .chatContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
     .chatContent > h1 {
         font-size: 25px;
     }
 
+    .newConversationSection,
+    .conversationsSection,
+    .activeChatSection {
+        padding: 14px;
+    }
+
+    .friendSearchInput {
+        max-width: 100%;
+    }
+
+    .messagesContainer {
+        padding: 12px;
+    }
+
+    /* Keep the input and Send button on one row, like most chat apps.
+       Hide the label visually but keep it for screen readers. */
     .messageForm {
-        flex-direction: column;
-        align-items: stretch;
+        flex-wrap: nowrap;
+    }
+
+    .messageForm label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
     }
 
     .sendMessageButton {
-        width: 100%;
+        min-width: 70px;
+        padding: 10px 14px;
+    }
+
+    /* 16px stops iOS Safari zooming in on focus */
+    .messageInput,
+    .friendSearchInput {
+        font-size: 16px;
     }
 
     .conversationCard,
     .friendSearch {
         align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .conversationCard button,
+    .friendSearch button {
+        width: 100%;
     }
 }

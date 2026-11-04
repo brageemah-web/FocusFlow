@@ -151,6 +151,12 @@
 
 /* Responsive authentication card */
 @media (max-width: 480px) {
+    .loginPage {
+        padding: 14px;
+        padding-top: max(14px, env(safe-area-inset-top));
+        padding-bottom: max(14px, env(safe-area-inset-bottom));
+    }
+
     .loginForm {
         padding: 28px 22px;
     }
@@ -158,27 +164,4 @@
     .loginForm h1 {
         font-size: 27px;
     }
-
-    .forgotPasswordCard {
-        padding: 28px 22px;
-    }
-
-    .forgotPasswordCard h1 {
-        font-size: 24px;
-    }
-}
-
-/* Dark mode overrides */
-:root[data-theme="dark"] .loginPage {
-    background: linear-gradient(135deg, #2B3229 0%, #20251F 50%, #46553D 100%);
-}
-
-:root[data-theme="dark"] .loginForm form input:not([type="checkbox"]) {
-    background-color: #343D31;
-    color: var(--text);
-    border-color: var(--border);
-}
-
-:root[data-theme="dark"] .loginForm form input::placeholder {
-    color: var(--muted);
 }

@@ -120,9 +120,11 @@
     color: var(--text);
 }
 
-/* Responsive layout */
+/* Tablets and below: nav is no longer a sidebar */
 @media (max-width: 750px) {
     .friendsContent {
+        width: 100%;
+        margin-left: 0;
         padding: 25px 18px;
     }
 
@@ -134,12 +136,46 @@
     }
 }
 
+/* Phones */
 @media (max-width: 480px) {
+    .friendsContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
     .friendsContent > h1 {
         font-size: 25px;
     }
 
+    .findFriendsSection,
+    .friendsListSection,
+    .sentRequestsSection,
+    .receivedRequestsSection {
+        padding: 14px;
+    }
+
+    /* 16px stops iOS Safari zooming in on focus */
+    .friendSearchForm input {
+        font-size: 16px;
+    }
+
+    .friendSearchForm button {
+        align-self: stretch;
+    }
+
+    /* Stack name above its buttons, buttons share the row */
     .friendItem {
-        align-items: flex-start;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .friendActions {
+        flex-shrink: 1;
+        width: 100%;
+    }
+
+    .friendActions button {
+        flex: 1;
+        padding: 10px 14px;
     }
 }

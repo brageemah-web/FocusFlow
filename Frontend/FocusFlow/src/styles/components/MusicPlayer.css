@@ -157,3 +157,14 @@
 [data-theme="dark"] .music-volume label {
     color: #c5cdbd;
 }
+
+@media (max-width: 480px) {
+    .music-player {
+        padding: 16px;
+        gap: 18px;
+    }
+
+    .music-controls {
+        gap: 16px;
+    }
+}

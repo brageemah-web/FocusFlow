@@ -113,9 +113,29 @@
     font-size: 14px;
 }
 
-/* Responsive styling */
+/* Logout */
+.logoutSection button {
+    align-self: stretch;
+    width: 100%;
+    padding: 12px;
+    font-weight: 600;
+}
+
+.logoutButton {
+    background-color: var(--btn-soft-bg);
+    color: var(--btn-soft-text);
+}
+
+.logoutButton:hover {
+    background-color: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+}
+
+/* Tablets and below: nav is no longer a sidebar */
 @media (max-width: 750px) {
     .settingsContent {
+        width: 100%;
+        margin-left: 0;
         padding: 25px 18px;
     }
 
@@ -124,16 +144,46 @@
     }
 }
 
+/* Phones */
 @media (max-width: 480px) {
+    .settingsContent {
+        padding: 18px 14px;
+        gap: 18px;
+    }
+
     .settingsContent > h1 {
         font-size: 25px;
+    }
+
+    .settingsSection {
+        padding: 14px;
     }
 
     .settingsSection h2 {
         font-size: 18px;
     }
 
+    /* 16px stops iOS Safari zooming in on focus */
+    .settingsForm input,
+    .themeSelect,
+    .passwordInput {
+        font-size: 16px;
+    }
+
     .settingsForm button {
         width: 100%;
+        padding: 12px;
+    }
+
+    /* Bigger tap area for the notification toggles */
+    .notificationOption {
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .logoutSection button {
+        width: 100%;
+        padding: 12px;
     }
 }

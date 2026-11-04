@@ -3,7 +3,8 @@
 ================================= */
 
 .sideBar {
-   width: 250px;
+    box-sizing: border-box;
+    width: 250px;
     height: 100vh;
     position: fixed;
     top: 0;
@@ -20,9 +21,12 @@
 .sideBar h2 {
     font-size: 26px;
     font-weight: 700;
-    color: #71875E;
     margin-bottom: 40px;
     padding-left: 10px;
+}
+
+.sideBar h2 a {
+    color: #71875E;
 }
 
 /* Navigation links */
@@ -42,100 +46,95 @@
     transition: all 0.2s ease;
 }
 
-/* Hover effect */
 .sideBar nav a:hover {
     background-color: var(--background);
     color: var(--text);
 }
 
-/* Active navigation link */
 .sideBar nav a.active {
     background-color: var(--accent);
-    color: #4F6542;
+    color: var(--text);
     font-weight: 600;
 }
 
-/* Logout section */
-.sideBarBottom {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
+/* Hidden on desktop */
+.mobileTopBar,
+.navOverlay {
+    display: none;
 }
-
-.sideBarBottom button {
-    width: 100%;
-    padding: 12px;
-    background-color: #F8EEEE;
-    color: var(--danger);
-    font-weight: 600;
-}
-
-.sideBarBottom button:hover {
-    background-color: #F2DCDC;
-}
-
-/* Main page content */
-main {
-    margin-left: 250px;
-    width: calc(100% - 250px);
-    padding: 35px;
-    min-height: 100vh;
-}
-
 
 /* ==============================
-   TABLET AND MOBILE LAYOUT
+   PHONE: SLIDING DRAWER
 ================================= */
 
 @media (max-width: 750px) {
-
-    /* Sidebar becomes a navigation bar at the top */
-    .sideBar {
-        position: relative;
-        top: auto;
-        left: auto;
-        width: 100%;
-        height: auto;
-        min-height: auto;
-        padding: 15px 18px;
-        border-right: none;
+    /* Top bar */
+    .mobileTopBar {
+        position: sticky;
+        top: 0;
+        z-index: 90;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        background-color: var(--surface);
         border-bottom: 1px solid var(--border);
     }
 
-    .sideBar h2 {
-        font-size: 23px;
-        margin-bottom: 15px;
-        padding-left: 0;
+    .menuButton {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        background: transparent;
+        color: var(--text);
+        border: none;
+        font-size: 24px;
+        line-height: 1;
     }
 
-    /* Allow navigation links to scroll horizontally */
-    .sideBar nav {
-        flex-direction: row;
-        gap: 6px;
-        overflow-x: auto;
-        padding-bottom: 8px;
-        scrollbar-width: thin;
+    .mobileLogo {
+        font-size: 20px;
+        font-weight: 700;
+        color: #71875E;
     }
 
-    .sideBar nav a {
-        flex: 0 0 auto;
-        padding: 9px 12px;
-        white-space: nowrap;
-        font-size: 13px;
+    /* Drawer */
+    .sideBar {
+        z-index: 200;
+        width: min(280px, 82vw);
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition: transform 0.25s ease, visibility 0s linear 0.25s;
     }
 
-    .sideBarBottom {
-        margin-top: 12px;
-        padding-top: 12px;
+    .sideBar.open {
+        transform: translateX(0);
+        visibility: visible;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+        transition: transform 0.25s ease;
     }
 
-    .sideBarBottom button {
-        width: auto;
-        min-width: 100px;
+    /* Backdrop */
+    .navOverlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 150;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
     }
 
-    /* Remove the space previously reserved for the sidebar */
-    main,
+    .navOverlay.show {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Page content no longer reserves sidebar space */
     .dashboardContent,
     .tasksContent,
     .calendarContent,
@@ -144,39 +143,17 @@ main {
     .friendsContent,
     .chatContent,
     .settingsContent {
+        box-sizing: border-box;
         width: 100%;
         margin-left: 0;
         min-height: auto;
         padding: 25px 18px;
     }
+}
 
-    /* Prevent grid items from forcing horizontal overflow */
-    .summaryCards,
-    .dashboardSections,
-    .dashboardQuickAccess > div {
-        min-width: 0;
-    }
-
-    /* Keep long content inside its containers */
-    .dashboardPanel,
-    .taskCard,
-    .noteCard,
-    .calendarSection,
-    .calendarEventsSection,
-    .timerSection,
-    .settingsSection {
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
-
-    /* Forms and buttons should fit their containers */
-    input,
-    textarea,
-    select {
-        max-width: 100%;
-    }
-
-    button {
-        max-width: 100%;
+@media (prefers-reduced-motion: reduce) {
+    .sideBar,
+    .navOverlay {
+        transition: none;
     }
 }

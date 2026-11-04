@@ -195,6 +195,12 @@
 
 /* Responsive */
 @media (max-width: 480px) {
+    .loginPage {
+        padding: 14px;
+        padding-top: max(14px, env(safe-area-inset-top));
+        padding-bottom: max(14px, env(safe-area-inset-bottom));
+    }
+
     .loginForm {
         padding: 28px 22px;
     }
@@ -202,37 +208,4 @@
     .loginForm h1 {
         font-size: 27px;
     }
-}
-
-/* Password strength */
-.passwordStrength {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 5px 0 12px;
-}
-
-.strengthHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.strength-label { color: var(--text); }
-.strength-percentage { color: var(--muted); }
-
-.strengthSegments {
-    display: flex;
-    gap: 6px;
-    width: 100%;
-}
-
-.segment {
-    flex: 1;
-    height: 6px;
-    background-color: var(--border);
-    border-radius: 10px;
-    transition: background-color 0.25s ease, box-shadow 0.25s ease;
 }
