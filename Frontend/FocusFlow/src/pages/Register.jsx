@@ -141,7 +141,7 @@ function Register() {
                 </p>
 
                 <form onSubmit={handleRegister}>
-                    <label htmlFor="fullName">Full Name</label><br/>
+                    <label htmlFor="fullName">Full Name</label>
                     <input type="text" 
                     id ="fullName" 
                     placeholder="Enter your full name" 
@@ -153,7 +153,7 @@ function Register() {
                         required
                     />
 
-                    <label htmlFor="registerEmail">Email</label><br/>
+                    <label htmlFor="registerEmail">Email</label>
                     <input type="email"
                         id="registerEmail"
                         placeholder="you@example.com"
@@ -166,7 +166,7 @@ function Register() {
                         required
                     />
 
-                    <label htmlFor="registerPassword">Password</label><br/>
+                    <label htmlFor="registerPassword">Password</label>
                     <input type={showPassword ? "text" : "password"}
                         id="registerPassword"
                         placeholder="At least 8 characters"
@@ -180,7 +180,7 @@ function Register() {
                         required
                     />
 
-                    <label htmlFor="confirmPassword">Confirm Password</label><br/>
+                    <label htmlFor="confirmPassword">Confirm Password</label>
                     <input type={showPassword ? "text" : "password"}
                         id="confirmPassword"
                         placeholder="Re-enter your password"
