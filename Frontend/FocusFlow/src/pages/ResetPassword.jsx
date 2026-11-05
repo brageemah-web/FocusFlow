@@ -19,10 +19,13 @@ function ResetPassword() {
         setMessage("");
         setError("");
 
-        if (newPassword.length < 6) {
-            setError("Password must be at least 6 characters long.");
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        
+        if (!passwordRegex.test(newPassword)) {
+            setError("Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character (@$!%*?&).");
             return;
         }
+
 
         if (newPassword !== confirmPassword) {
             setError("Passwords do not match.");

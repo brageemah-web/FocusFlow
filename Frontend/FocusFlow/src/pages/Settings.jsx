@@ -91,6 +91,13 @@ function Settings() {
             return;
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        
+        if (!passwordRegex.test(passwordData.newPassword)) {
+            setMessage("Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character (@$!%*?&).");
+            return;
+        }
+
         try {
             const data = await api("/auth/change-password", {
                 method: "PUT",

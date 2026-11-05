@@ -32,10 +32,10 @@ router.post("/register", async(req,res) => {
         }
 
         //chack password length
-        if(password.length < 6){
+        if(password.length < 8){
             // 400 Bad Request
             return res.status(400).json({
-                message : "Password must be at least 6 characters long"
+                message : "Password must be at least 8 characters long"
             });
         }
 
@@ -232,11 +232,14 @@ router.put("/change-password", protect, async (req, res) => {
             });
         }
 
-        if (newPassword.length < 6) {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        
+        if (!passwordRegex.test(password)) {
             return res.status(400).json({
-                message: "New password must be at least 6 characters long"
+            message : "Password must contain at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character (@$!%*?&)."
             });
         }
+
 
         const user = await User.findById(req.user.id);
 
