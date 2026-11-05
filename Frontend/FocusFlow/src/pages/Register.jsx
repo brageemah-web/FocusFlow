@@ -151,7 +151,7 @@ function Register() {
                     }}
                     autoComplete="name"
                         required
-                    /><br/>
+                    />
 
                     <label htmlFor="registerEmail">Email</label><br/>
                     <input type="email"
@@ -164,7 +164,7 @@ function Register() {
                         }}
                         autoComplete="email"
                         required
-                    /><br/>
+                    />
 
                     <label htmlFor="registerPassword">Password</label><br/>
                     <input type={showPassword ? "text" : "password"}
@@ -178,7 +178,7 @@ function Register() {
                         autoComplete="new-password"
                         minLength={8}
                         required
-                    /><br/>
+                    />
 
                     <label htmlFor="confirmPassword">Confirm Password</label><br/>
                     <input type={showPassword ? "text" : "password"}
@@ -191,7 +191,7 @@ function Register() {
                         }}
                         autoComplete="new-password"
                         required
-                    /><br/>
+                    />
 
  
                         {password && (
@@ -227,7 +227,7 @@ function Register() {
                             </div>
                         )}
 
-                    <label className="showPassword"><br/>
+                    <label className="showPassword">
                         <input
                             type="checkbox"
                             title = "Show Password"
@@ -237,7 +237,7 @@ function Register() {
                             }
                         />
                         Show passwords
-                    </label><br/>
+                    </label>
 
                     {error.map((e, index) => (
                         <p className="formError" key={index}>
