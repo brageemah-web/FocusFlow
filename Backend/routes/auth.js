@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/emailService");
 const updateStreak = require("../utils/streakService");
+const valid = require("validator");
 
 
 const Task = require("../models/Task");
@@ -31,11 +32,18 @@ router.post("/register", async(req,res) => {
             });
         }
 
-        //chack password length
+        //check password length
         if(password.length < 8){
             // 400 Bad Request
             return res.status(400).json({
                 message : "Password must be at least 8 characters long"
+            });
+        }
+
+        
+        if(!valid.isEmail(email)){
+            return res.status(400).json({
+                message : "Invalid email"
             });
         }
 
